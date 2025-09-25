@@ -8,7 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 try:
     geckodriver_autoinstaller.install()
-except:
+except Exception:
     print("check driver, do you have firefox installed?")
 
 # Setter opp tilkoblingen til webdriver
