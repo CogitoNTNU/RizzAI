@@ -1,0 +1,19 @@
+[project]
+name = "RizzAI"
+version = "0.1.0"
+description = "A Rizzler bot that uses AI to help you flirt."
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+license = { file = "LICENSE" }
+dependencies = [
+    "geckodriver-autoinstaller>=0.1.0",
+    "selenium>=4.35.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18.2",
+    "pre-commit>=4.3.0",
+    "ruff>=0.13.1",
+    "typer>=0.19.2",
+]
