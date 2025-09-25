@@ -1,0 +1,2 @@
+selenium
+geckodriver_autoinstaller
