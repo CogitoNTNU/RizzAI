@@ -24,6 +24,12 @@ PROFILE_FOLDER = os.getenv(
 WIN_USERNAME = os.getenv("WIN_USERNAME")
 
 
+# Get the last used user ID from the .last_id file
+last_user_id: int = -1
+with open("data_collection/.last_id", "r", encoding="utf-8") as f:
+    last_user_id = int(f.read().strip())
+
+
 options = Options()
 
 # Verify the profile folder path
@@ -228,6 +234,65 @@ def get_essentials() -> list[str]:
     except Exception as e:
         print("Could not find essential details:", e)
         return []
+
+
+def scrape_one_gyatt_or_potential_partner() -> None:
+    """Scrape data for one potential partner."""
+
+    section = get_current_person_section()
+    if section is None:
+        print("No current person section found.")
+        return
+
+    try:
+        name_aria = section.get_attribute("aria-label")
+        if name_aria is None:
+            print("No aria-label found for the current person section.")
+            return
+
+        name_match = re.match(r"^(.*?)'s photos$", name_aria)
+        if not name_match:
+            print("Could not extract name from aria-label.")
+            return
+
+        name = name_match.group(1)
+        print(f"Scraping data for a potential partner: {name}")
+
+        # Open more details to access About Me and Essentials
+        open_more_details()
+        time.sleep(0.7)  # Wait for the details to load
+
+        # Get all photo URLs
+        photo_urls = get_all_them_photos()
+
+        # Get About Me text
+        about_me = get_about_me_text()
+
+        # Get Essentials
+        essentials = get_essentials()
+
+        # Close more details
+        close_more_details()
+
+        # Compile data
+        data = {
+            "name": name,
+            "photos": [{"index": idx, "url": url} for idx, url in photo_urls],
+            "about_me": about_me,
+            "essentials": essentials,
+        }
+
+        # Save data to JSON
+        output_path = Path("data_collection/profiles/")
+        output_path.mkdir(parents=True, exist_ok=True)
+        json_file_path = output_path / f"{name.replace(' ', '_').lower()}_data.json"
+        with open(json_file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+
+        print(f"Data for {name} saved to {json_file_path}")
+
+    except Exception as e:
+        print("An error occurred while scraping the potential partner:", e)
 
 
 # Update the scrape_tinder function to find photos based on the specified criteria
