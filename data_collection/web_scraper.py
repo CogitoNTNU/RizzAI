@@ -88,6 +88,10 @@ def get_photo_url_from_section(section: WebElement, photo_index: int) -> str | N
         )
         photo_div_html = photo_div.get_attribute("outerHTML")
 
+        if photo_div_html is None:
+            print(f"No outerHTML found for photo index {photo_index}.")
+            return None
+
         # Extract URL from style attribute
         match = re.search(r'url\("?([^"\)]+)"?\)', photo_div_html)
         if match:
@@ -454,7 +458,7 @@ def scrape_website():
         print("An error occurred during scraping:", e)
 
 
-def download_images(urls: list[str], id: int):
+def download_images(urls: list[str | None], id: int):
     """Download images from the given URLs and save them locally."""
     save_path = Path(f"data_collection/profiles/images/{id}")
     save_path.mkdir(parents=True, exist_ok=True)
