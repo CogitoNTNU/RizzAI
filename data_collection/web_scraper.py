@@ -470,9 +470,3 @@ if __name__ == "__main__":
 
     # Always quit the driver
     driver.quit()
-
-
-# get_basics()
-# get_lifestyle()
-# get_interests()
-# get_anthem()
