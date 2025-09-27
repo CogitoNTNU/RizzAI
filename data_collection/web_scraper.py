@@ -15,7 +15,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.keys import Keys
 
 
-load_dotenv(dotenv_path="DataCollection/.env")
+load_dotenv(dotenv_path="data_collection/.env")
 
 
 URL = os.getenv("SCRAPE_URL", "NOT-SET")
@@ -26,11 +26,17 @@ WIN_USERNAME = os.getenv("WIN_USERNAME")
 LAST_ID_PATH = Path("data_collection/profiles/.last_id")
 
 
-# Get the last used user ID from the .last_id file
-last_user_id: int = -1
-with open(LAST_ID_PATH, "r", encoding="utf-8") as f:
-    last_user_id = int(f.read().strip())
+def read_last_id() -> int:
+    """Read the last used user ID from the .last_id file."""
+    if LAST_ID_PATH.exists():
+        with open(LAST_ID_PATH, "r", encoding="utf-8") as f:
+            return int(f.read().strip())
+    else:
+        return -1  # Default value if the file does not exist
 
+
+# Get the last used user ID from the .last_id file
+last_user_id: int = read_last_id()
 
 options = Options()
 
@@ -47,10 +53,7 @@ driver = webdriver.Firefox(service=Service(), options=options)
 
 driver.maximize_window()
 
-
 driver.get(URL)
-
-input("Press Enter after logging in...")
 
 
 def get_current_person_section() -> WebElement | None:
@@ -98,7 +101,7 @@ def get_photo_url_from_section(section: WebElement, photo_index: int) -> str | N
         return None
 
 
-def get_all_them_photos() -> list[str]:
+def get_all_them_photos() -> list[str | None]:
     """Get all photo elements in the current person's section."""
     section = get_current_person_section()
     if section is None:
@@ -111,6 +114,10 @@ def get_all_them_photos() -> list[str]:
 
         while True:
             url = get_photo_url_from_section(section, photo_index)
+
+            if url is not None:
+                url = url.strip('"')  # Remove any enclosing quotes
+
             photo_urls.append(url)
             photo_index += 1
 
@@ -124,7 +131,7 @@ def get_all_them_photos() -> list[str]:
                 break  # Exit the loop if the button is disabled
 
             next_button.click()  # Click to go to the next photo
-            time.sleep(0.1)  # Small delay to allow the photo to load
+            time.sleep(0.5)  # Small delay to allow the photo to load
 
         return photo_urls
 
@@ -175,7 +182,10 @@ def get_about_me_text() -> str | None:
         # go_into_more_details()
 
         # Get about by finding h2 with text "About Me"
-        about_me_section = get_more_details_section("About me")
+        try:
+            about_me_section = get_more_details_section("About me")
+        except Exception:
+            return None  # No "About me" section
 
         if about_me_section is None:
             print("No 'About me' section found.")
@@ -190,8 +200,8 @@ def get_about_me_text() -> str | None:
         )
         return about_me_div_sibling.text
 
-    except Exception as e:
-        print("Could not find 'About Me' section:", e)
+    except Exception:
+        print("Could not find 'About Me' section.")
         return None
 
 
@@ -254,7 +264,7 @@ def scrape_one_gyatt_or_potential_partner() -> None:
         photo_urls = get_all_them_photos()
 
         # Download photos
-        new_last_user_id = last_user_id + 1
+        new_last_user_id = read_last_id() + 1
         # Update the .last_id file with the new last user ID
         with open(LAST_ID_PATH, "w", encoding="utf-8") as f:
             f.write(str(new_last_user_id))
@@ -337,7 +347,6 @@ def download_images(urls: list[str], id: int):
     save_path.mkdir(parents=True, exist_ok=True)
 
     for idx, url in enumerate(urls):
-        url = url.strip('"')  # Remove any enclosing quotes
         if url is None:
             continue
         try:
