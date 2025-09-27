@@ -12,6 +12,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.common.keys import Keys
 
 
 load_dotenv(dotenv_path="DataCollection/.env")
@@ -134,19 +135,28 @@ def get_all_them_photos() -> list[str]:
         return []
 
 
-def go_into_more_details():
-    """Click on the 'Open Profile' button to see more details."""
-    try:
-        # Find the span with "Open Profile"
-        span_open_profile = driver.find_element(
-            By.XPATH, "//span[text()='Open Profile']"
-        )
-        button_open_profile = span_open_profile.find_element(By.XPATH, "..")
-        # Click to open the full profile
-        button_open_profile.click()
-        time.sleep(0.5)  # Wait for the profile to open
-    except Exception as e:
-        print("Could not find or click 'Open Profile' button:", e)
+def open_more_details() -> None:
+    """Use key ARROW_UP to open more details."""
+    actions = webdriver.ActionChains(driver)
+    actions.send_keys(Keys.ARROW_UP).perform()
+
+
+def close_more_details() -> None:
+    """Use key ARROW_DOWN to close more details."""
+    actions = webdriver.ActionChains(driver)
+    actions.send_keys(Keys.ARROW_DOWN).perform()
+
+
+def give_like() -> None:
+    """Like by pressing the right arrow key."""
+    actions = webdriver.ActionChains(driver)
+    actions.send_keys(Keys.ARROW_RIGHT).perform()
+
+
+def give_nonono() -> None:
+    """Dislike by pressing the left arrow key."""
+    actions = webdriver.ActionChains(driver)
+    actions.send_keys(Keys.ARROW_LEFT).perform()
 
 
 def get_more_details_section(name: str) -> WebElement | None:
