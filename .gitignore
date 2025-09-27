@@ -1,6 +1,5 @@
 # Ignore data files and directories
-data_collection/profiles/
-data_collection/.last_id
+data_collection/profiles/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
