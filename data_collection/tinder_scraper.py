@@ -3,7 +3,9 @@ import json
 import os
 import re
 import time
+from pathlib import Path
 
+import requests
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -267,9 +269,65 @@ def scrape_tinder():
     print("Data saved to tinder_data.json")
 
 
-# def download_images(urls: list[str], id: int):
-#     """Download images from the given URLs and save them locally."""
-#     save_path = "
+def download_images(urls: list[tuple[int, str]], id: int):
+    """Download images from the given URLs and save them locally."""
+    save_path = Path(f"data_collection/profiles/images/{id}")
+    save_path.mkdir(parents=True, exist_ok=True)
+
+    for idx, url in urls:
+        url = url.strip('"')  # Remove any enclosing quotes
+        if url is None:
+            continue
+        try:
+            image_data = requests.get(url).content
+            with open(save_path / f"image_{idx}.jpg", "wb") as img_file:
+                img_file.write(image_data)
+            print(f"Downloaded image {idx} from {url}")
+        except Exception as e:
+            print(f"Failed to download image from {url}: {e}")
+
+
+def get_textual_data(person_id: int) -> dict:
+    """Get textual data like About Me and Essentials and store them into a JSON file."""
+    about_me = get_about_me_text()
+    essentials = get_essentials()
+
+    output_path = Path("data_collection/profiles/")
+
+    # Get JSON file path
+    json_file_path = output_path / "text_data.json"
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # Load existing data if the file exists
+    if json_file_path.exists():
+        with open(json_file_path, encoding="utf-8") as f:
+            all_data = json.load(f)
+    else:
+        all_data = {}
+
+    all_data[person_id] = {
+        "about_me": about_me,
+        "essentials": essentials,
+        # TODO: Add more fields as needed
+    }
+
+    # Save updated data back to the JSON file
+    with open(json_file_path, "w", encoding="utf-8") as f:
+        json.dump(all_data, f, ensure_ascii=False, indent=4)
+
+    return all_data
+
+
+get_textual_data(person_id=42)
+
+print(url)
+print(url.strip('"'))
+url = urls[0][1].strip('"')  # Remove any enclosing quotes
+image_data = requests.get(url).content
+
+
+urls
+download_images(urls, id=42)
 
 
 # Run the scraper
