@@ -149,25 +149,13 @@ def go_into_more_details():
 
 def get_more_details_section(name: str) -> WebElement | None:
     try:
-        # go_into_more_details()
-
-        # Get about by finding h2 with text "About Me"
-        about_me_element = driver.find_element(
-            # By.XPATH, "//*[contains(text(), 'About me')]/following-sibling::*"
+        return driver.find_element(
             By.XPATH,
-            "//h2[text()='About me']",
+            f"//h2[text()='{name}']",
         )
-        # Get uncle of about_me_element, so next div
-        about_me_parent = about_me_element.find_element(By.XPATH, "..")
-
-        # Get the next sibling div which contains the actual text
-        about_me_div_sibling = about_me_parent.find_element(
-            By.XPATH, "following-sibling::div"
-        )
-        return about_me_div_sibling.text
 
     except Exception as e:
-        print("Could not find 'About Me' section:", e)
+        print("Could not find more details section:", e)
         return None
 
 
@@ -177,13 +165,14 @@ def get_about_me_text() -> str | None:
         # go_into_more_details()
 
         # Get about by finding h2 with text "About Me"
-        about_me_element = driver.find_element(
-            # By.XPATH, "//*[contains(text(), 'About me')]/following-sibling::*"
-            By.XPATH,
-            "//h2[text()='About me']",
-        )
+        about_me_section = get_more_details_section("About me")
+
+        if about_me_section is None:
+            print("No 'About me' section found.")
+            return None
+
         # Get uncle of about_me_element, so next div
-        about_me_parent = about_me_element.find_element(By.XPATH, "..")
+        about_me_parent = about_me_section.find_element(By.XPATH, "..")
 
         # Get the next sibling div which contains the actual text
         about_me_div_sibling = about_me_parent.find_element(
