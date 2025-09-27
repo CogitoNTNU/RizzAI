@@ -238,6 +238,106 @@ def get_essentials() -> list[str]:
         return []
 
 
+def get_basics() -> dict[str, str]:
+    """Get basic details like height, family plans, drinking, smoking."""
+    try:
+        basics_div = get_more_details_section("Basics")
+
+        if basics_div is None:
+            print("No 'Basics' section found.")
+            return {}
+
+        basics_div_parent = basics_div.find_element(By.XPATH, "..")
+        basics_div_sibling = get_sibling(basics_div_parent)
+
+        if basics_div_sibling is None:
+            print("No sibling found for 'Basics' div.")
+            return {}
+
+        basics = basics_div_sibling.text.split("\n")
+
+        # Pair keys and values from the basics list
+        return {basics[i]: basics[i + 1] for i in range(0, len(basics) - 1, 2)}
+
+    except Exception as e:
+        print("Could not find basic details:", e)
+        return {}
+
+
+def get_lifestyle() -> dict[str, str]:
+    """Get lifestyle details like exercise, diet, pets."""
+    try:
+        lifestyle_div = get_more_details_section("Lifestyle")
+
+        if lifestyle_div is None:
+            print("No 'Lifestyle' section found.")
+            return {}
+
+        lifestyle_div_parent = lifestyle_div.find_element(By.XPATH, "..")
+        lifestyle_div_sibling = get_sibling(lifestyle_div_parent)
+
+        if lifestyle_div_sibling is None:
+            print("No sibling found for 'Lifestyle' div.")
+            return {}
+
+        lifestyle = lifestyle_div_sibling.text.split("\n")
+
+        # Pair keys and values from the lifestyle list
+        return {lifestyle[i]: lifestyle[i + 1] for i in range(0, len(lifestyle) - 1, 2)}
+
+    except Exception as e:
+        print("Could not find lifestyle details:", e)
+        return {}
+
+
+def get_interests() -> list[str]:
+    """Get interests like hiking, reading, traveling."""
+    try:
+        interests_div = get_more_details_section("Interests")
+
+        if interests_div is None:
+            print("No 'Interests' section found.")
+            return []
+
+        interests_div_parent = interests_div.find_element(By.XPATH, "..")
+        interests_div_sibling = get_sibling(interests_div_parent)
+
+        if interests_div_sibling is None:
+            print("No sibling found for 'Interests' div.")
+            return []
+
+        interests = interests_div_sibling.text.split("\n")
+        return interests
+
+    except Exception as e:
+        print("Could not find interests details:", e)
+        return []
+
+
+def get_anthem() -> str | None:
+    """Get anthem if available."""
+    try:
+        anthem_div = get_more_details_section("My anthem")
+
+        if anthem_div is None:
+            print("No 'Anthem' section found.")
+            return None
+
+        anthem_div_parent = anthem_div.find_element(By.XPATH, "..")
+        anthem_div_sibling = get_sibling(anthem_div_parent)
+
+        if anthem_div_sibling is None:
+            print("No sibling found for 'Anthem' div.")
+            return None
+
+        name, author = anthem_div_sibling.text.split("\n")
+        return f"{name} by {author}"
+
+    except Exception as e:
+        print("Could not find anthem details:", e)
+        return None
+
+
 def scrape_one_gyatt_or_potential_partner() -> None:
     """Scrape data for one potential partner."""
 
@@ -275,14 +375,16 @@ def scrape_one_gyatt_or_potential_partner() -> None:
         open_more_details()
         time.sleep(0.7)  # Wait for the details to load
 
-        # Get About Me text
         about_me = get_about_me_text()
-
-        # Get Essentials
         essentials = get_essentials()
+        basics = get_basics()
+        lifestyle = get_lifestyle()
+        interests = get_interests()
+        anthem = get_anthem()
 
         # Close more details
         close_more_details()
+        time.sleep(0.7)  # Small delay to allow the UI to update
 
         # Compile data
         data = {
@@ -292,6 +394,10 @@ def scrape_one_gyatt_or_potential_partner() -> None:
             ],
             "about_me": about_me,
             "essentials": essentials,
+            "basics": basics,
+            "lifestyle": lifestyle,
+            "interests": interests,
+            "anthem": anthem,
         }
 
         # Save data to JSON
@@ -358,40 +464,15 @@ def download_images(urls: list[str], id: int):
             print(f"Failed to download image from {url}: {e}")
 
 
-def get_textual_data(person_id: int) -> dict:
-    """Get textual data like About Me and Essentials and store them into a JSON file."""
-    about_me = get_about_me_text()
-    essentials = get_essentials()
-
-    output_path = Path("data_collection/profiles/")
-
-    # Get JSON file path
-    json_file_path = output_path / "text_data.json"
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    # Load existing data if the file exists
-    if json_file_path.exists():
-        with open(json_file_path, encoding="utf-8") as f:
-            all_data = json.load(f)
-    else:
-        all_data = {}
-
-    all_data[person_id] = {
-        "about_me": about_me,
-        "essentials": essentials,
-        # TODO: Add more fields as needed
-    }
-
-    # Save updated data back to the JSON file
-    with open(json_file_path, "w", encoding="utf-8") as f:
-        json.dump(all_data, f, ensure_ascii=False, indent=4)
-
-    return all_data
-
-
 if __name__ == "__main__":
     # Run the scraper
     scrape_website()
 
     # Always quit the driver
     driver.quit()
+
+
+# get_basics()
+# get_lifestyle()
+# get_interests()
+# get_anthem()
