@@ -23,11 +23,12 @@ PROFILE_FOLDER = os.getenv(
     "PROFILE_FOLDER", "your-profile-folder"
 )  # Replace with your Firefox profile folder name
 WIN_USERNAME = os.getenv("WIN_USERNAME")
+LAST_ID_PATH = Path("data_collection/profiles/.last_id")
 
 
 # Get the last used user ID from the .last_id file
 last_user_id: int = -1
-with open("data_collection/.last_id", "r", encoding="utf-8") as f:
+with open(LAST_ID_PATH, "r", encoding="utf-8") as f:
     last_user_id = int(f.read().strip())
 
 
@@ -110,7 +111,7 @@ def get_all_them_photos() -> list[str]:
 
         while True:
             url = get_photo_url_from_section(section, photo_index)
-            photo_urls.append((photo_index, url))
+            photo_urls.append(url)
             photo_index += 1
 
             print(f"Found photo URL at index {photo_index}: {url}")
@@ -258,6 +259,14 @@ def scrape_one_gyatt_or_potential_partner() -> None:
         # Get all photo URLs
         photo_urls = get_all_them_photos()
 
+        # Download photos
+        new_last_user_id = last_user_id + 1
+        # Update the .last_id file with the new last user ID
+        with open(LAST_ID_PATH, "w", encoding="utf-8") as f:
+            f.write(str(new_last_user_id))
+
+        download_images(photo_urls, id=new_last_user_id)
+
         # Get About Me text
         about_me = get_about_me_text()
 
@@ -270,7 +279,9 @@ def scrape_one_gyatt_or_potential_partner() -> None:
         # Compile data
         data = {
             "name": name,
-            "photos": [{"index": idx, "url": url} for idx, url in photo_urls],
+            "photos": [
+                {"index": idx, "url": url} for idx, url in enumerate(photo_urls)
+            ],
             "about_me": about_me,
             "essentials": essentials,
         }
@@ -337,12 +348,12 @@ def scrape_website():
     print("Data saved to text_data.json")
 
 
-def download_images(urls: list[tuple[int, str]], id: int):
+def download_images(urls: list[str], id: int):
     """Download images from the given URLs and save them locally."""
     save_path = Path(f"data_collection/profiles/images/{id}")
     save_path.mkdir(parents=True, exist_ok=True)
 
-    for idx, url in urls:
+    for idx, url in enumerate(urls):
         url = url.strip('"')  # Remove any enclosing quotes
         if url is None:
             continue
