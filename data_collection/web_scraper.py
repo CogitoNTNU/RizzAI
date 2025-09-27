@@ -312,51 +312,23 @@ def scrape_one_gyatt_or_potential_partner() -> None:
 
 # Update the scrape_tinder function to find photos based on the specified criteria
 def scrape_website():
-    data = []
-
-    # Find the section containing NAME's photos
+    """Main function to scrape the website."""
     try:
-        photos_section = driver.find_element(
-            By.XPATH, '//div[@aria-label="Profile Photo 1"]'
-        )
+        while True:
+            input("Press Enter to scrape the next potential partner...")
 
-        # Get the URL from the style attribute
-        photos_section_html = photos_section.get_attribute("outerHTML")
-        assert photos_section_html is not None, (
-            "Could not retrieve outerHTML of the photos section."
-        )
+            scrape_one_gyatt_or_potential_partner()
 
-        photo_urls = re.findall(r'url\("?([^"\)]+)"?\)', photos_section_html)
-        for url in photo_urls:
-            decoded_url = html.unescape(url)
-            data.append({"image_url": decoded_url})
+            # Just like them all
+            give_like()
 
-        # for photo in photo_elements:
-        #     # Extract the background image URL from the style attribute
-        #     style = photo.get_attribute("style")
-        #     if style:
-        #         match = re.search(r"url\\(\\?\"(.*?)\\?\"\\)", style)
-        #         if match:
-        #             image_url = match.group(1)
-        #             data.append({"image_url": image_url})
+            # Small delay to allow the next profile to load
+            time.sleep(0.5)
+
+    except KeyboardInterrupt:
+        print("Scraping interrupted by user.")
     except Exception as e:
-        print("Could not find photos section or profile images:", e)
-
-    # Find "About Me" section
-    try:
-        about_me_element = driver.find_element(
-            By.XPATH, "//*[contains(text(), 'About Me')]/following-sibling::*"
-        )
-        about_me_text = about_me_element.text
-        data.append({"about_me": about_me_text})
-    except Exception as e:
-        print("Could not find 'About Me' section:", e)
-
-    # Save data to JSON
-    with open("text_data.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-
-    print("Data saved to text_data.json")
+        print("An error occurred during scraping:", e)
 
 
 def download_images(urls: list[str], id: int):
@@ -516,3 +488,6 @@ with open("data_collection/profiles/text_data.json", "w", encoding="utf-8") as f
     json.dump({}, f)
 
 scrape_one_gyatt_or_potential_partner()
+
+
+scrape_website()
