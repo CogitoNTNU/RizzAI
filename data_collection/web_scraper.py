@@ -9,10 +9,10 @@ import requests
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.common.keys import Keys
 
 
 load_dotenv(dotenv_path="data_collection/.env")
@@ -29,7 +29,7 @@ LAST_ID_PATH = Path("data_collection/profiles/.last_id")
 def read_last_id() -> int:
     """Read the last used user ID from the .last_id file."""
     if LAST_ID_PATH.exists():
-        with open(LAST_ID_PATH, "r", encoding="utf-8") as f:
+        with open(LAST_ID_PATH, encoding="utf-8") as f:
             return int(f.read().strip())
     else:
         return -1  # Default value if the file does not exist
@@ -340,7 +340,6 @@ def get_anthem() -> str | None:
 
 def scrape_one_gyatt_or_potential_partner() -> None:
     """Scrape data for one potential partner."""
-
     section = get_current_person_section()
     if section is None:
         print("No current person section found.")
@@ -435,8 +434,16 @@ def scrape_website():
 
             scrape_one_gyatt_or_potential_partner()
 
-            # Just like them all
-            give_like()
+            """TODO: Sadly, we can't like them all.
+            It's limited to 50-100 likes per 12 hours.
+            But with click nope all the time, we can get duplicates.
+            One option would be to uniquely store them using embeddings of the images
+            and then check if we already have them, but that's a bit too much work for now.
+            """
+            # # Just like them all
+            # give_like()
+
+            give_nonono()
 
             # Small delay to allow the next profile to load
             time.sleep(0.5)
