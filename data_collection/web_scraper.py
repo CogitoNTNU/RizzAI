@@ -289,9 +289,22 @@ def scrape_one_gyatt_or_potential_partner() -> None:
         # Save data to JSON
         output_path = Path("data_collection/profiles/")
         output_path.mkdir(parents=True, exist_ok=True)
-        json_file_path = output_path / f"{name.replace(' ', '_').lower()}_data.json"
-        with open(json_file_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
+        json_file_path = output_path / "text_data.json"
+
+        # If the file does not exist, create it with an empty dict
+        if not json_file_path.exists():
+            with open(json_file_path, "w", encoding="utf-8") as f:
+                json.dump({}, f)
+
+        # Write the new data into the JSON file
+        # TODO: Make it more efficient by not loading the whole file every time
+        # Such as using a database (SQLite, etc.)
+        with open(json_file_path, "r+", encoding="utf-8") as f:
+            all_data = json.load(f)
+            all_data[new_last_user_id] = data
+            f.seek(0)
+            json.dump(all_data, f, ensure_ascii=False, indent=4)
+            f.truncate()
 
         print(f"Data for {name} saved to {json_file_path}")
 
