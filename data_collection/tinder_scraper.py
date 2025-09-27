@@ -267,6 +267,11 @@ def scrape_tinder():
     print("Data saved to tinder_data.json")
 
 
+# def download_images(urls: list[str], id: int):
+#     """Download images from the given URLs and save them locally."""
+#     save_path = "
+
+
 # Run the scraper
 scrape_tinder()
 
