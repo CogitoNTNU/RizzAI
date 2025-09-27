@@ -18,6 +18,7 @@ from selenium.webdriver.common.keys import Keys
 load_dotenv(dotenv_path="DataCollection/.env")
 
 
+URL = os.getenv("SCRAPE_URL", "NOT-SET")
 PROFILE_FOLDER = os.getenv(
     "PROFILE_FOLDER", "your-profile-folder"
 )  # Replace with your Firefox profile folder name
@@ -45,17 +46,9 @@ driver = webdriver.Firefox(service=Service(), options=options)
 
 driver.maximize_window()
 
-# Set constants
-timeout = 40
-URL = "https://tinder.com/app/recs"
 
-
-# Navigate to Tinder
-print("Navigating to Tinder...")
 driver.get(URL)
 
-# Wait for user to log in manually (or automate login if possible)
-print("Please log in to Tinder manually. You have 60 seconds.")
 input("Press Enter after logging in...")
 
 
@@ -296,7 +289,7 @@ def scrape_one_gyatt_or_potential_partner() -> None:
 
 
 # Update the scrape_tinder function to find photos based on the specified criteria
-def scrape_tinder():
+def scrape_website():
     data = []
 
     # Find the section containing NAME's photos
@@ -338,10 +331,10 @@ def scrape_tinder():
         print("Could not find 'About Me' section:", e)
 
     # Save data to JSON
-    with open("tinder_data.json", "w", encoding="utf-8") as f:
+    with open("text_data.json", "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
-    print("Data saved to tinder_data.json")
+    print("Data saved to text_data.json")
 
 
 def download_images(urls: list[tuple[int, str]], id: int):
@@ -406,7 +399,7 @@ download_images(urls, id=42)
 
 
 # Run the scraper
-scrape_tinder()
+scrape_website()
 
 # Always quit the driver
 driver.quit()
