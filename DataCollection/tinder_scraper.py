@@ -185,6 +185,39 @@ def get_about_me_text() -> str | None:
         return None
 
 
+def get_sibling(element: WebElement) -> WebElement | None:
+    """Get the next sibling of the given element."""
+    try:
+        return element.find_element(By.XPATH, "following-sibling::*")
+    except Exception as e:
+        print("Could not find sibling element:", e)
+        return None
+
+
+def get_essentials() -> list[str]:
+    """Get essential details like how far, where they live, job, school."""
+    try:
+        essentials_div = get_more_details_section("Essentials")
+
+        if essentials_div is None:
+            print("No 'Essentials' section found.")
+            return []
+
+        essentials_div_parent = essentials_div.find_element(By.XPATH, "..")
+        essentials_div_sibling = get_sibling(essentials_div_parent)
+
+        if essentials_div_sibling is None:
+            print("No sibling found for 'Essentials' div.")
+            return []
+
+        essentials = essentials_div_sibling.text.split("\n")
+        return essentials
+
+    except Exception as e:
+        print("Could not find essential details:", e)
+        return []
+
+
 # Update the scrape_tinder function to find photos based on the specified criteria
 def scrape_tinder():
     data = []
