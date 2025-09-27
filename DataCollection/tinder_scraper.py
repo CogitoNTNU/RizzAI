@@ -1,46 +1,87 @@
-import geckodriver_autoinstaller
+import json
+import os
+import re
+
+from dotenv import load_dotenv
 from selenium import webdriver
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 
 
-try:
-    geckodriver_autoinstaller.install()
-except Exception:
-    print("check driver, do you have firefox installed?")
+load_dotenv(dotenv_path="DataCollection/.env")
 
-# Setter opp tilkoblingen til webdriver
-options = webdriver.FirefoxOptions()
-# options.add_argument("--log-level=3")
-options.add_argument("--no-sandbox")
-# options.add_argument("--headless")
-# options.add_argument('--width=2560')
-# options.add_argument('--height=1440')
-driver = webdriver.Firefox(options=options)
+
+PROFILE_FOLDER = os.getenv(
+    "PROFILE_FOLDER", "your-profile-folder"
+)  # Replace with your Firefox profile folder name
+WIN_USERNAME = os.getenv("WIN_USERNAME")
+
+
+options = Options()
+
+# Verify the profile folder path
+profile_path = f"C:\\Users\\{WIN_USERNAME}\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\{PROFILE_FOLDER}"
+if not os.path.exists(profile_path):
+    raise Exception(
+        f"Specified profile folder '{profile_path}' does not exist. Please check the PROFILE_FOLDER and WIN_USERNAME environment variables."
+    )
+
+options.add_argument("-profile")
+options.add_argument(profile_path)
+driver = webdriver.Firefox(service=Service(), options=options)
+
 driver.maximize_window()
-actions = ActionChains(driver)
 
 # Set constants
 timeout = 40
-URL = ...
+URL = "https://tinder.com/app/recs"
 
 
-driver.get(URL)  # the url you want to go to
+# Navigate to Tinder
+print("Navigating to Tinder...")
+driver.get(URL)
 
-# Here you find a html element with by it name, you can use id or any other element that is not dynamic, and then click to execute action
-swipe = WebDriverWait(driver, timeout).until(
-    EC.visibility_of_element_located(
-        ("xpath", '//*[@name="logLogin$AzureLoginButton"]')
+# Wait for user to log in manually (or automate login if possible)
+print("Please log in to Tinder manually. You have 60 seconds.")
+input("Press Enter after logging in...")
+
+
+# Scrape images and "About Me" text
+def scrape_tinder():
+    data = []
+
+    # Find all elements with background images
+    image_elements = driver.find_elements(
+        By.XPATH, "//*[contains(@style, 'background-image')]"
     )
-)
-swipe.click()
+    for element in image_elements:
+        style = element.get_attribute("style")
+        if style:  # Ensure style is not None
+            match = re.search(r'url\\(\\?"(.*?)\\?"\\)', style)
+            if match:
+                image_url = match.group(1)
+                data.append({"image_url": image_url})
 
-# If you need to use keyboard inputs not directly at the html do it like this
-actions.send_keys("g").perform()
-actions.send_keys(Keys.ENTER).perform()
+    # Find "About Me" section
+    try:
+        about_me_element = driver.find_element(
+            By.XPATH, "//*[contains(text(), 'About Me')]/following-sibling::*"
+        )
+        about_me_text = about_me_element.text
+        data.append({"about_me": about_me_text})
+    except Exception as e:
+        print("Could not find 'About Me' section:", e)
+
+    # Save data to JSON
+    with open("tinder_data.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+    print("Data saved to tinder_data.json")
 
 
-# Always at the bottom to not brick your computer
+# Run the scraper
+scrape_tinder()
+
+# Always quit the driver
 driver.quit()
