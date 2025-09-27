@@ -114,8 +114,6 @@ def get_all_them_photos() -> list[str]:
             photo_urls.append(url)
             photo_index += 1
 
-            print(f"Found photo URL at index {photo_index}: {url}")
-
             # Try to click the next button
             next_button = section.find_element(
                 By.XPATH, './/button[@aria-label="Next Photo"]'
@@ -252,10 +250,6 @@ def scrape_one_gyatt_or_potential_partner() -> None:
         name = name_match.group(1)
         print(f"Scraping data for a potential partner: {name}")
 
-        # Open more details to access About Me and Essentials
-        open_more_details()
-        time.sleep(0.7)  # Wait for the details to load
-
         # Get all photo URLs
         photo_urls = get_all_them_photos()
 
@@ -266,6 +260,10 @@ def scrape_one_gyatt_or_potential_partner() -> None:
             f.write(str(new_last_user_id))
 
         download_images(photo_urls, id=new_last_user_id)
+
+        # Open more details to access About Me and Essentials
+        open_more_details()
+        time.sleep(0.7)  # Wait for the details to load
 
         # Get About Me text
         about_me = get_about_me_text()
@@ -374,7 +372,7 @@ def download_images(urls: list[str], id: int):
             image_data = requests.get(url).content
             with open(save_path / f"image_{idx}.jpg", "wb") as img_file:
                 img_file.write(image_data)
-            print(f"Downloaded image {idx} from {url}")
+            # print(f"Downloaded image {idx} from {url}")
         except Exception as e:
             print(f"Failed to download image from {url}: {e}")
 
@@ -512,3 +510,9 @@ for child in about_me_div.find_elements(By.XPATH, "./*"):
 about_me_text = about_me_element.text
 
 about_me_text
+
+# Clear text_data.json before starting
+with open("data_collection/profiles/text_data.json", "w", encoding="utf-8") as f:
+    json.dump({}, f)
+
+scrape_one_gyatt_or_potential_partner()
