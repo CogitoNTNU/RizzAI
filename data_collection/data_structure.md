@@ -1,7 +1,7 @@
 # Data Structure
 
 
-JSON file structure for storing Tinder profile data:
+JSON file structure for storing data:
 
 ```json
 [

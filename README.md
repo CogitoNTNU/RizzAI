@@ -15,6 +15,6 @@
 - To run a Python script: `uv run python <script_name>.py`
 
 ### Web Scraper
-- To run the web scraper: `uv run python -m data_collection.scrape_tinder
+- To run the web scraper: `uv run python -m data_collection.web_scraper
 - Ensure you have set up the `.env` file in the `data_collection` directory with the necessary environment variables, as shown in `.env-example`.
 - NOTE: To run the scraper automatically, remove the `input()` line in the scraper code.

@@ -3,6 +3,8 @@ import json
 import os
 import re
 import time
+import random
+
 from pathlib import Path
 
 import requests
@@ -429,7 +431,7 @@ def scrape_one_gyatt_or_potential_partner() -> None:
         print("An error occurred while scraping the potential partner:", e)
 
 
-# Update the scrape_tinder function to find photos based on the specified criteria
+# Update the function to find photos based on the specified criteria
 def scrape_website():
     """Main function to scrape the website."""
     try:
@@ -445,9 +447,12 @@ def scrape_website():
             and then check if we already have them, but that's a bit too much work for now.
             """
             # # Just like them all
-            # give_like()
 
-            give_nonono()
+            # Do a coinflip for like or nonono
+            if random.random() < 0.5:
+                give_like()
+            else:
+                give_nonono()
 
             # Small delay to allow the next profile to load
             time.sleep(0.5)
