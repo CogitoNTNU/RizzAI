@@ -7,7 +7,7 @@
 #SBATCH --job-name=hourglass_prior_freq_50 # Set this to whatever you want
 #SBATCH --time=00:20:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
-#SBATCH --output=job_output/cpujob-%j.out
+#SBATCH --output=job_output/%j_cpu.out
 
 # Ensure the job_output directory exists
 mkdir -p job_output
