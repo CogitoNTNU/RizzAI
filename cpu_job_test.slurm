@@ -26,5 +26,5 @@ else
   echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 fi
 uv sync
-# uv run python -m blip2.test2.py
-uv run python -m blip2.test.py
+# uv run python -m blip2.test2
+uv run python -m blip2.test
