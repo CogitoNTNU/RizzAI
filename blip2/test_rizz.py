@@ -55,7 +55,8 @@ DESCRIPTION OF THE GIRL: \
 Girl's name: Gabriela; \
 Age: 22; \
 Non-smoker, has a dog, drinks socially on weekends, sometimes works out, \
-loves hiking and outdoor activities.
+loves hiking and outdoor activities. \
+I am a guy that is interested in her.
 """
 
 
@@ -67,5 +68,9 @@ questions = [
 
 for question in questions:
     answer = ask_question(question)
+
+    if question.endswith("Answer:"):
+        question = question.split("Answer:")[0].strip()
+
     print(f"Prompt: '{question}'")
     print(f"Answer: '{answer}'\n")
