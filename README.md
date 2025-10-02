@@ -52,3 +52,5 @@ Then, ask Kristian to add your public key to the server.
    ssh USERNAME@HOSTNAME
    ```
    Replace `USERNAME` and `HOSTNAME` with the appropriate values (see Slack to get these).
+
+**Note:** You need to use NTNU VPN or be connected to NTNU network to access the server.
