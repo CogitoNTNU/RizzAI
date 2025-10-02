@@ -19,7 +19,7 @@ echo "We are using $SLURM_CPUS_ON_NODE cores per node"
 echo "Total of $SLURM_NTASKS cores"
 echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 cd rizzai/RizzAI
-uv venv -n rizz_env --python=3.12
-source rizz_env/bin/activate 
+source rizz_env/bin/activate
+... 
 cd blip2
 python test.py
