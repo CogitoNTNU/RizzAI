@@ -33,7 +33,7 @@ inputs_qa = processor(images=raw_image, text=prompt, return_tensors="pt")
 print(f"Input IDs shape: {inputs_qa.input_ids.shape}")
 print(f"Pixel values shape: {inputs_qa.pixel_values.shape}")
 
-generated_ids_qa = model.generate(**inputs_qa)  # , max_new_tokens=10)
+generated_ids_qa = model(**inputs_qa)
 
 full_response = processor.batch_decode(generated_ids_qa, skip_special_tokens=True)[0]
 print(f"Full response: '{full_response}'")
