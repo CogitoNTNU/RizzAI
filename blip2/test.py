@@ -16,7 +16,7 @@ print("Loading model...")
 processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
 model = Blip2ForConditionalGeneration.from_pretrained(
     "Salesforce/blip2-opt-2.7b",
-    device_map={"": 0},
+    device_map={"": 0} if device == "cuda" else None,
     dtype=dtype,
     quantization_config=BitsAndBytesConfig(load_in_8bit=True, llm_int8_threshold=6.0),
 )
@@ -27,9 +27,7 @@ image = Image.open(requests.get(url, stream=True).raw)
 
 print("Testing image captioning...")
 # First test: Image captioning
-inputs_caption = processor(images=raw_image, return_tensors="pt").to(
-    device, dtype=dtype
-)
+inputs_caption = processor(images=image, return_tensors="pt").to(device, dtype=dtype)
 generated_ids_caption = model.generate(**inputs_caption, max_new_tokens=20)
 caption = processor.batch_decode(generated_ids_caption, skip_special_tokens=True)[
     0
