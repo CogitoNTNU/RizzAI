@@ -8,7 +8,7 @@ if [ -n "$JOB_OUTPUT_DIR" ]; then
     echo "Found job_output folder at: $JOB_OUTPUT_DIR"
     
     # Remove all log files in the folder
-    # find "$JOB_OUTPUT_DIR" -type f -name "*.out" -exec rm -f {} \;
+    find "$JOB_OUTPUT_DIR" -type f -name "*.out" -exec rm -f {} \;
     echo "All log files removed from $JOB_OUTPUT_DIR"
 else
     echo "job_output folder not found."
