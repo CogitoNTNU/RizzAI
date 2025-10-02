@@ -1,5 +1,8 @@
-# Ignore data files and directories
+# Data files and directories
 data_collection/profiles/*
+
+# Job output files
+job_output/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
