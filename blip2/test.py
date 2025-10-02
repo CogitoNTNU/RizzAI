@@ -35,14 +35,31 @@ caption = processor.batch_decode(generated_ids_caption, skip_special_tokens=True
 print(f"Caption: '{caption}'")
 
 print("\nTesting question answering...")
-# Second test: Question answering with proper prompt format
-prompt = "Question: how many cats are there? Answer:"
-inputs = processor(images=image, text=prompt, return_tensors="pt").to(
-    device=device, dtype=dtype
-)
 
-generated_ids = model.generate(**inputs)
-generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[
-    0
-].strip()
-print(generated_text)
+
+def ask_question(question: str) -> str:
+    inputs = processor(images=image, text=question, return_tensors="pt").to(
+        device=device, dtype=dtype
+    )
+    generated_ids = model.generate(**inputs, max_new_tokens=50)
+    generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[
+        0
+    ].strip()
+
+    answer = generated_text[len(question) :].strip()
+
+    return answer
+
+
+questions = [
+    "Question: what is this a picture of? Answer:",
+    "Question: how many cats are there? Answer:",
+    "Question: what are the cats doing? Answer:",
+    "Question: what is the color of the blanket? Answer:",
+    "Describe the image.",
+]
+
+for question in questions:
+    answer = ask_question(question)
+    print(f"Prompt: '{question}'")
+    print(f"Answer: '{answer}'\n")
