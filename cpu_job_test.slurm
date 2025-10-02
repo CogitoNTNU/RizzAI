@@ -20,9 +20,13 @@ echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "We are using $SLURM_CPUS_ON_NODE cores per node"
 echo "Total of $SLURM_NTASKS cores"
-echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
-# cd rizzai/RizzAI
-# source rizz_env/bin/activate
-# uv sync
-# cd blip2
-# python test2.py
+if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
+  echo "Total of GPUS: None (CPU-only job)"
+else
+  echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
+fi
+cd rizzai/RizzAI
+source rizz_env/bin/activate
+uv sync
+cd blip2
+python test2.py
