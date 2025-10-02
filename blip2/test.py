@@ -35,16 +35,19 @@ print(f"Pixel values shape: {inputs_qa.pixel_values.shape}")
 
 generated_ids_qa = model(**inputs_qa)
 
-print("GENERATED IDS:")
-print(generated_ids_qa)
-print("*" * 20)
+# Ensure generated_ids_qa is a list of integers
+generated_ids_qa = (
+    [int(token) for token in generated_ids_qa]
+    if not isinstance(generated_ids_qa[0], int)
+    else generated_ids_qa
+)
 
-# full_response = processor.batch_decode(generated_ids_qa, skip_special_tokens=True)[0]
-# print(f"Full response: '{full_response}'")
+full_response = processor.batch_decode(generated_ids_qa, skip_special_tokens=True)[0]
+print(f"Full response: '{full_response}'")
 
-# # Extract just the answer part
-# if "Answer:" in full_response:
-#     answer = full_response.split("Answer:")[-1].strip()
-#     print(f"Extracted answer: '{answer}'")
-# else:
-#     print("No 'Answer:' found in response")
+# Extract just the answer part
+if "Answer:" in full_response:
+    answer = full_response.split("Answer:")[-1].strip()
+    print(f"Extracted answer: '{answer}'")
+else:
+    print("No 'Answer:' found in response")
