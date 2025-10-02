@@ -56,7 +56,7 @@ questions = [
     "Question: how many cats are there? Answer:",
     "Question: what are the cats doing? Answer:",
     "Question: what is the color of the blanket? Answer:",
-    "Describe the image.",
+    "Question: Describe the image in detail. Answer:",
 ]
 
 for question in questions:
