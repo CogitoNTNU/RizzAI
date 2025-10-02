@@ -7,7 +7,7 @@ import torch
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 print("Loading model...")
-processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b", use_fast=True)
+processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
 # model = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b")
 model = Blip2Model.from_pretrained("Salesforce/blip2-opt-2.7b", dtype=torch.float16)
 model.to(device)
