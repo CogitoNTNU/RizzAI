@@ -11,7 +11,9 @@ from transformers import (Blip2ForConditionalGeneration,
 
 #Config for the model used --------->
 
-qformer_config = Blip2QFormerConfig(hidden_size=700, 
+qformer_config = Blip2QFormerConfig() 
+
+"""hidden_size=700, 
                                     num_hidden_layers=10, 
                                     num_attention_heads=10,
                                     intermediate_size=2998,
@@ -25,7 +27,7 @@ qformer_config = Blip2QFormerConfig(hidden_size=700,
                                     position_embedding_type="absolute",
                                     cross_attention_frequency=2,
                                     encoder_hidden_size=1337,
-                                    use_qformer_text_input=False) #This we want to improve and change
+                                    use_qformer_text_input=False) #This we want to improve and change """
 
 
 vision_config = Blip2VisionConfig() #Image encoder Keep this 
