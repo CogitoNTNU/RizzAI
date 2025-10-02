@@ -25,9 +25,6 @@ if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
 else
   echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 fi
-cd rizzai/RizzAI
-source rizz_env/bin/activate
 uv sync
-cd blip2
-# python test2.py
-python test.py
+# uv run python -m blip2.test2.py
+uv run python -m blip2.test.py
