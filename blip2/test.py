@@ -1,16 +1,24 @@
 import requests
 from PIL import Image
-from transformers import Blip2Processor, Blip2ForConditionalGeneration
+from transformers import (
+    BitsAndBytesConfig,
+    Blip2Processor,
+    Blip2ForConditionalGeneration,
+)
 import torch
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"Using device: {device}")
 dtype = torch.float16 if device == "cuda" else torch.float32
 
 print("Loading model...")
 processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
 model = Blip2ForConditionalGeneration.from_pretrained(
-    "Salesforce/blip2-opt-2.7b", load_in_8bit=True, device_map={"": 0}, dtype=dtype
+    "Salesforce/blip2-opt-2.7b",
+    device_map={"": 0},
+    dtype=dtype,
+    quantization_config=BitsAndBytesConfig(load_in_8bit=True, llm_int8_threshold=6.0),
 )
 
 url = "http://images.cocodataset.org/val2017/000000039769.jpg"
