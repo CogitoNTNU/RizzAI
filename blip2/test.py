@@ -5,43 +5,38 @@ import torch
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
+dtype = torch.float16 if device == "cuda" else torch.float32
 
 print("Loading model...")
 processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
 model = Blip2ForConditionalGeneration.from_pretrained(
-    "Salesforce/blip2-opt-2.7b", dtype=torch.float16
+    "Salesforce/blip2-opt-2.7b", load_in_8bit=True, device_map={"": 0}, dtype=dtype
 )
-model.to(device)
 
+url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+image = Image.open(requests.get(url, stream=True).raw)
 
-# Load and process the image
-img_url = "https://storage.googleapis.com/sfr-vision-language-research/BLIP/demo.jpg"
-raw_image = Image.open(requests.get(img_url, stream=True).raw).convert("RGB")
 
 print("Testing image captioning...")
 # First test: Image captioning
-inputs_caption = processor(images=raw_image, return_tensors="pt")
+inputs_caption = processor(images=raw_image, return_tensors="pt").to(
+    device, dtype=dtype
+)
 generated_ids_caption = model.generate(**inputs_caption, max_new_tokens=20)
-caption = processor.batch_decode(generated_ids_caption, skip_special_tokens=True)[0]
+caption = processor.batch_decode(generated_ids_caption, skip_special_tokens=True)[
+    0
+].strip()
 print(f"Caption: '{caption}'")
 
 print("\nTesting question answering...")
 # Second test: Question answering with proper prompt format
-prompt = "Question: how many dogs are in the picture? Answer:"
-inputs_qa = processor(images=raw_image, text=prompt, return_tensors="pt").to(device)
+prompt = "Question: how many cats are there? Answer:"
+inputs = processor(images=image, text=prompt, return_tensors="pt").to(
+    device=device, dtype=dtype
+)
 
-# Debug: check what's in the inputs
-print(f"Input IDs shape: {inputs_qa.input_ids.shape}")
-print(f"Pixel values shape: {inputs_qa.pixel_values.shape}")
-
-generated_ids_qa = model.generate(**inputs_qa, max_new_tokens=20)
-
-full_response = processor.batch_decode(generated_ids_qa, skip_special_tokens=True)[0]
-print(f"Full response: '{full_response}'")
-
-# Extract just the answer part
-if "Answer:" in full_response:
-    answer = full_response.split("Answer:")[-1].strip()
-    print(f"Extracted answer: '{answer}'")
-else:
-    print("No 'Answer:' found in response")
+generated_ids = model.generate(**inputs)
+generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[
+    0
+].strip()
+print(generated_text)
