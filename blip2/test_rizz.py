@@ -51,8 +51,9 @@ def ask_question(question: str) -> str:
 
 
 description = """\
-Girl's name: Gabriela
-Age: 22
+DESCRIPTION OF THE GIRL: \
+Girl's name: Gabriela; \
+Age: 22; \
 Non-smoker, has a dog, drinks socially on weekends, sometimes works out, \
 loves hiking and outdoor activities.
 """
