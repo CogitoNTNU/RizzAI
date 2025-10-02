@@ -9,6 +9,11 @@
 #SBATCH --time=00:20:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:1 # GPU type and number of GPUs.
+#SBATCH --output=job_output/myjob-%j.out
+
+# Ensure the job_output directory exists
+mkdir -p job_output
+
 echo "We are running from this directory: $SLURM_SUBMIT_DIR"
 echo "The name of the job is: $SLURM_JOB_NAME"
 echo "The job ID is $SLURM_JOB_ID"
