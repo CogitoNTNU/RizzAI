@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11,<3.12"
 license = { file = "LICENSE" }
 dependencies = [
+    "accelerate>=1.10.1",
     "dotenv>=0.9.9",
     "geckodriver-autoinstaller>=0.1.0",
     "pillow>=11.3.0",
