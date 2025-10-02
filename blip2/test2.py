@@ -22,10 +22,10 @@ model = Blip2ForConditionalGeneration(configuration)
 
 processor = Blip2Processor.from_pretrained("Salesforce/blip2-flan-t5-xl")
 
-url = "write some image url here"
+url = "https://static.wikia.nocookie.net/dreamworks/images/3/34/Fiona_Profile.jpg/revision/latest?cb=20231223034631"
 image = Image.open(requests.get(url, stream=True).raw)
 
-prompt = "Here is her profile description: ... give me an opening line"
+prompt = "Here is her profile description: - Princess, - Loves Shrekians, - Has a human form, - 25 y.o, - Rich, - Loves a true man, - Long Term. Give me an opening line for this person"
 inputs = processor(images=image, text=prompt, return_tensors="pt").to("gpu", torch.float16)
 
 outputs = model(**inputs)
