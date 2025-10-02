@@ -29,4 +29,5 @@ cd rizzai/RizzAI
 source rizz_env/bin/activate
 uv sync
 cd blip2
-python test2.py
+# python test2.py
+python test.py
