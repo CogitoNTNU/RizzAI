@@ -38,13 +38,6 @@ inputs = processor(images=image, text=prompt, return_tensors="pt").to(
 
 generated_ids_qa = model.generate(**inputs)
 
-# Ensure generated_ids_qa is a list of integers
-generated_ids_qa = (
-    [int(token) for token in generated_ids_qa]
-    if not isinstance(generated_ids_qa[0], int)
-    else generated_ids_qa
-)
-
 full_response = processor.batch_decode(generated_ids_qa, skip_special_tokens=True)[0]
 print(f"Full response: '{full_response}'")
 
