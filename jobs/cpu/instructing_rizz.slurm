@@ -7,10 +7,10 @@
 #SBATCH --job-name=hourglass_prior_freq_50 # Set this to whatever you want
 #SBATCH --time=00:20:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
-#SBATCH --output=job_output/%j_cpu_instructing_rizz.out
+#SBATCH --output=job_output/salesforce-instructblip-vicuna-7b/%j_cpu_instructing_rizz.out
 
-# Ensure the job_output directory exists
-mkdir -p job_output
+# Ensure the output directory exists
+mkdir -p job_output/salesforce-instructblip-vicuna-7b
 
 if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
   echo "Total of GPUS: None (CPU-only job)"
