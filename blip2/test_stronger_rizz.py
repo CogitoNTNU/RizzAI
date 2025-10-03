@@ -6,9 +6,9 @@ from transformers import BlipForConditionalGeneration, BlipProcessor
 device = "cuda" if torch.cuda.is_available() else "cpu"
 dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
-processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
+processor = BlipProcessor.from_pretrained("Salesforce/blip2-opt-6.7b-coco")
 model = BlipForConditionalGeneration.from_pretrained(
-    "Salesforce/blip-image-captioning-large", torch_dtype=dtype
+    "Salesforce/blip2-opt-6.7b-coco", torch_dtype=dtype
 ).to(device)
 
 image_path = "data_collection/profiles/images/1/image_1.jpg"
@@ -26,7 +26,19 @@ print("Conditional image captioning...")
 
 def ask_question(question: str) -> str:
     inputs = processor(raw_image, question, return_tensors="pt").to(device, dtype)
-    out = model.generate(**inputs)
+    out = model.generate(
+        **inputs,
+        do_sample=True,
+        num_beams=1,
+        max_length=120,
+        min_length=20,
+        temperature=1.1,  # Higher creativity
+        top_p=0.95,
+        top_k=100,
+        repetition_penalty=1.2,
+        no_repeat_ngram_size=2,
+        length_penalty=1.0,  # TODO: Play with shorter or longer answers
+    )
 
     answer = processor.decode(out[0], skip_special_tokens=True)
 
@@ -42,7 +54,7 @@ loves hiking and outdoor activities. \
 I am a guy that is interested in her.
 """
 
-better_description = """\
+natural_description = """\
 Her name is Gabriela. She is 22 years old. \
 She is a non-smoker, has a dog, drinks socially on weekends, \
 sometimes works out, and loves hiking and outdoor activities. \
@@ -51,46 +63,34 @@ I am a guy that is interested in her.
 
 
 questions = [
-    "Her name is",
-    "She is",
-    "If I were to take her out, I would take her to",
-    "She is really pretty because",
-    "Some interesting facts I could mention about her are",
-    "A good opening line to start a conversation with her would be",
-    "The best opening line to start a conversation with her is",
-    # f"Question: What is her name? Answer:",
-    # f"Question: How old is she? Answer:",
-    # f"Question: What are some of her interests? Answer:",
-    # f"Question: What is so pretty about her? Answer:",
-    # f"Question: {description} What would be a good opening line to start a conversation? Answer:",
-    # f"Question: {description} What are some interesting facts I could mention about her? Answer:",
-    # f"Question: {description} What are some fun date ideas? Answer:",
+    # "What is her name, how old is she, and what are some of her interests?",
+    # "How old is she?",
+    # "If I were to take her out, where would I take her?",
+    # "Why is she really pretty?",
+    # "What are some interesting facts I could mention about her?",
+    # "What would be a good flirty opening line to start a conversation with her?",
+    "What is the best flirty opening line to start a conversation with her?",
+    # "What are some fun date ideas?",
 ]
 
-for question in questions:
-    print("Without description:")
-    answer = ask_question(question)
-    print(answer)
-    print("-" * 10)
+for i, question in enumerate(questions):
+    print(f"Question {i + 1}\n")
 
-    print("With description:")
-    answer = ask_question(
-        f"{description} {question}"
-    )  # add description to each question
-    print(answer)
-    print("-" * 10)
+    # print("Without description:")
+    # answer = ask_question(question)
+    # print(answer)
+    # print("-" * 10)
 
-    print("With better description:")
+    # print("With description:")
+    # answer = ask_question(
+    #     f"{description} {question}"
+    # )  # add description to each question
+    # print(answer)
+    # print("-" * 10)
+
+    print("With a natural description:")
     answer = ask_question(
-        f"{better_description} {question}"
+        f"{natural_description} {question}"
     )  # add description to each question
     print(answer)
     print("\n" + "=" * 20 + "\n")
-
-    # if question.endswith("Answer:"):
-    #     question = question.split("Answer:")[0].strip()
-    #     answer = answer[len(question):].strip() # remove the question part from the answer
-
-    # print(f"Prompt: '{question}'")
-    # print(f"Answer: '{answer}'\n")
-    # print(answer)
