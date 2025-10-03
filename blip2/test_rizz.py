@@ -33,18 +33,18 @@ caption = processor.batch_decode(generated_ids_caption, skip_special_tokens=True
 ].strip()
 print(f"Caption: '{caption}'")
 
-print("\nTesting question answering...")
+print("\nTesting question answering...\n")
 
 
 def ask_question(question: str) -> str:
     inputs = processor(images=image, text=question, return_tensors="pt").to(
         device=device, dtype=dtype
     )
-    generated_ids = model.generate(
+    out_ids = model.generate(
         **inputs,
         do_sample=True,
-        num_beams=1,
-        max_length=120,
+        num_beams=3,
+        max_length=256,
         min_length=20,
         temperature=1.1,  # Higher creativity
         top_p=0.95,
@@ -54,11 +54,7 @@ def ask_question(question: str) -> str:
         length_penalty=1.0,  # TODO: Play with shorter or longer answers
     )
 
-    generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[
-        0
-    ].strip()
-
-    # answer = generated_text[len(question) :].strip()
+    answer = processor.batch_decode(out_ids, skip_special_tokens=True)[0].strip()
 
     return answer
 
@@ -81,9 +77,12 @@ I am a guy that is interested in her.\
 
 
 questions = [
-    f"Question: What would be a good opening line to start a conversation? Answer:",
-    f"Question: What are some interesting facts I could mention about her? Answer:",
-    f"Question: What are some fun date ideas? Answer:",
+    "Question: What is the best flirting opening line to start a conversation? Answer:",
+    "What is the best flirting opening line to start a conversation? The best opening line is:",
+    "The best flirting opening line to start a conversation is",
+    # f"Question: What would be a good opening line to start a conversation? Answer:",
+    # f"Question: What are some interesting facts I could mention about her? Answer:",
+    # f"Question: What are some fun date ideas? Answer:",
 ]
 
 
