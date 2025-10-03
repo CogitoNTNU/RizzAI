@@ -1,14 +1,14 @@
 import torch
 from PIL import Image
-from transformers import BlipForConditionalGeneration, BlipProcessor
+from transformers import Blip2ForConditionalGeneration, Blip2Processor
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
-processor = BlipProcessor.from_pretrained("Salesforce/blip2-opt-6.7b-coco")
-model = BlipForConditionalGeneration.from_pretrained(
-    "Salesforce/blip2-opt-6.7b-coco", torch_dtype=dtype
+processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-6.7b-coco")
+model = Blip2ForConditionalGeneration.from_pretrained(
+    "Salesforce/blip2-opt-6.7b-coco", dtype=dtype
 ).to(device)
 
 image_path = "data_collection/profiles/images/1/image_1.jpg"
@@ -51,14 +51,14 @@ Girl's name: Gabriela; \
 Age: 22; \
 Non-smoker, has a dog, drinks socially on weekends, sometimes works out, \
 loves hiking and outdoor activities. \
-I am a guy that is interested in her.
+I am a guy that is interested in her.\
 """
 
 natural_description = """\
 Her name is Gabriela. She is 22 years old. \
 She is a non-smoker, has a dog, drinks socially on weekends, \
 sometimes works out, and loves hiking and outdoor activities. \
-I am a guy that is interested in her.
+I am a guy that is interested in her.\
 """
 
 
