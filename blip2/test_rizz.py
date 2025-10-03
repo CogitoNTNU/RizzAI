@@ -1,10 +1,10 @@
+import torch
 from PIL import Image
 from transformers import (
     BitsAndBytesConfig,
-    Blip2Processor,
     Blip2ForConditionalGeneration,
+    Blip2Processor,
 )
-import torch
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -15,8 +15,8 @@ print("Loading model...")
 processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
 model = Blip2ForConditionalGeneration.from_pretrained(
     "Salesforce/blip2-opt-2.7b",
-    device_map={"": 0} if device == "cuda" else None,
     dtype=dtype,
+    device_map={"": 0} if device == "cuda" else None,
     quantization_config=BitsAndBytesConfig(load_in_8bit=True, llm_int8_threshold=6.0),
 )
 
@@ -40,12 +40,25 @@ def ask_question(question: str) -> str:
     inputs = processor(images=image, text=question, return_tensors="pt").to(
         device=device, dtype=dtype
     )
-    generated_ids = model.generate(**inputs, max_new_tokens=50)
+    generated_ids = model.generate(
+        **inputs,
+        do_sample=True,
+        num_beams=1,
+        max_length=120,
+        min_length=20,
+        temperature=1.1,  # Higher creativity
+        top_p=0.95,
+        top_k=100,
+        repetition_penalty=1.2,
+        no_repeat_ngram_size=2,
+        length_penalty=1.0,  # TODO: Play with shorter or longer answers
+    )
+
     generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[
         0
     ].strip()
 
-    answer = generated_text[len(question) :].strip()
+    # answer = generated_text[len(question) :].strip()
 
     return answer
 
@@ -56,21 +69,42 @@ Girl's name: Gabriela; \
 Age: 22; \
 Non-smoker, has a dog, drinks socially on weekends, sometimes works out, \
 loves hiking and outdoor activities. \
-I am a guy that is interested in her.
+I am a guy that is interested in her.\
+"""
+
+natural_description = """\
+Her name is Gabriela. She is 22 years old. \
+She is a non-smoker, has a dog, drinks socially on weekends, \
+sometimes works out, and loves hiking and outdoor activities. \
+I am a guy that is interested in her.\
 """
 
 
 questions = [
-    f"Question: {description} What would be a good opening line to start a conversation? Answer:",
-    f"Question: {description} What are some interesting facts I could mention about her? Answer:",
-    f"Question: {description} What are some fun date ideas? Answer:",
+    f"Question: What would be a good opening line to start a conversation? Answer:",
+    f"Question: What are some interesting facts I could mention about her? Answer:",
+    f"Question: What are some fun date ideas? Answer:",
 ]
 
-for question in questions:
+
+for i, question in enumerate(questions):
+    print(f"Question {i + 1}\n")
+
+    print("Without description:")
     answer = ask_question(question)
+    print(answer)
+    print("-" * 10)
 
-    if question.endswith("Answer:"):
-        question = question.split("Answer:")[0].strip()
+    # print("With description:")
+    # answer = ask_question(
+    #     f"{description} {question}"
+    # )  # add description to each question
+    # print(answer)
+    # print("-" * 10)
 
-    print(f"Prompt: '{question}'")
-    print(f"Answer: '{answer}'\n")
+    print("With a natural description:")
+    answer = ask_question(
+        f"{natural_description} {question}"
+    )  # add description to each question
+    print(answer)
+    print("\n" + "=" * 20 + "\n")
