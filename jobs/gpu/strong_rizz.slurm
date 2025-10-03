@@ -21,4 +21,5 @@ fi
 uv sync
 # uv run python -m blip2.test2
 # uv run python -m blip2.test
-uv run python -m blip2.test_rizz
+# uv run python -m blip2.test_rizz
+uv run python -m blip2.test_stronger_rizz
