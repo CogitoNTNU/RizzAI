@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --partition=CPUQ # CHANGE THIS TO CPUQ IF YOU DON'T NEED GPUs!!
+#SBATCH --partition=GPUQ # CHANGE THIS TO CPUQ IF YOU DON'T NEED GPUs!!
 #SBATCH --account=studiegrupper-cogito # Only use this one
 #SBATCH --mem=32GB # Total memory you need. Most DL jobs should do fine with 64GB.
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
@@ -7,7 +7,8 @@
 #SBATCH --job-name=hourglass_prior_freq_50 # Set this to whatever you want
 #SBATCH --time=00:20:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
-#SBATCH --output=job_output/%j_cpu_strong_rizz.out
+#SBATCH --gres=gpu:1 # GPU type and number of GPUs.
+#SBATCH --output=job_output/%j_gpu_strong_rizz.out
 
 # Ensure the job_output directory exists
 mkdir -p job_output
@@ -18,4 +19,6 @@ else
   echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 fi
 uv sync
-uv run python -m blip2.test_stronger_rizz
+# uv run python -m blip2.test2
+# uv run python -m blip2.test
+uv run python -m blip2.test_rizz
