@@ -54,3 +54,4 @@ fi
 
 echo -e "$RIZZCOL[RizzAI]${RESET} Monitoring the output file: $OUTPUT_FILE"
 
+tail -n +1 -F "$OUTPUT_FILE"
