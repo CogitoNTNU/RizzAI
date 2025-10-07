@@ -22,7 +22,7 @@ else
 fi
 
 JOB_ID=$(sbatch $JOB_INPUT | grep -o '[0-9]*')
-echo -e "$RIZZCOL[RizzAI]${RESET} Sent out batch job. Job ID: ${GREEN}$BATCH_ID${RESET}"
+echo -e "$RIZZCOL[RizzAI]${RESET} Sent out batch job. Job ID: ${GREEN}$JOB_ID${RESET}"
 
 # Wait a second
 sleep 1
@@ -32,7 +32,7 @@ sleep 1
 trap 'echo -e "Output monitoring ${RED}stopped. Have a nice day ${GREEN}:)${RESET}"; exit 130' INT
 
 # Get output file
-OUTPUT_FILE=$(ls job_output/*${JOB_ID}*.out 2>/dev/null | head -1)
+OUTPUT_FILE=$(ls job_output/*$JOB_ID*.out 2>/dev/null | head -1)
 
 for i in {1..10}; do
     OUTPUT_FILE=$(find job_output -name "*${JOB_ID}*.out" 2>/dev/null | head -1)
@@ -43,7 +43,7 @@ for i in {1..10}; do
     fi
 
     echo -e "$RIZZCOL[RizzAI]${RESET} Attempt $i/10: ${RED}File not found, waiting...${RESET}"
-    sleep 2
+    sleep 5
 done
 
 if [ -z "$OUTPUT_FILE" ]; then
