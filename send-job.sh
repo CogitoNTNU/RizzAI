@@ -53,7 +53,7 @@ if [[ "$JOB_INPUT" == *.slurm ]]; then
     JOB_ID=$(sbatch $JOB_INPUT | grep -o '[0-9]*')
     echo -e "$RIZZCOL[RizzAI]${RESET} Sent out batch job. Job ID: ${GREEN}$JOB_ID${RESET}"
     sleep 1
-    monitor false "$JOB_ID" ""
+    monitor_file false "$JOB_ID" ""
 elif [[ "$JOB_INPUT" == -m ]]; then
     JOB_DEST=$2
     monitor_file true 0 "$JOB_DEST"
