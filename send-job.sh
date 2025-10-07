@@ -32,10 +32,10 @@ sleep 1
 trap 'echo -e "Output monitoring ${RED}stopped. Have a nice day ${GREEN}:)${RESET}"; exit 130' INT
 
 # Get output file
-OUTPUT_FILE=$(ls job_output/*$JOB_ID*.out 2>/dev/null | head -1)
+OUTPUT_FILE=""
 
 for i in {1..10}; do
-    OUTPUT_FILE=$(find job_output -name "*${JOB_ID}*.out" 2>/dev/null | head -1)
+    OUTPUT_FILE=$(find job_output -name "*$JOB_ID*.out" 2>/dev/null | head -1)
 
     if [ -n "$OUTPUT_FILE" ]; then
         echo -e "$RIZZCOL[RizzAI]${RESET} Found Job output file: ${GREEN}$OUTPUT_FILE${RESET}"
