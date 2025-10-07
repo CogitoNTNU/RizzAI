@@ -29,7 +29,7 @@ sleep 1
 
 # Reading part
 
-trap 'echo -e "Output monitoring ${RED}stopped. Have a nice day ${GREEN}:)"'
+trap 'echo -e "Output monitoring ${RED}stopped. Have a nice day ${GREEN}:)"; exit 130' INT
 
 # Get output file
 OUTPUT_FILE=$(ls job_output/*${JOB_ID}*.out 2>/dev/null | head -1)
@@ -53,24 +53,26 @@ if [ -z "$OUTPUT_FILE" ]; then
 fi
 
 echo -e "$RIZZCOL[RizzAI]${RESET} Monitoring the output file: $OUTPUT_FILE"
-FIRST_RUN=true
+PREVIOUS_LINE_COUNT=0
 while true; do
-    CONTENT=$(cat "$OUTPUT_FILE" 2>/dev/null)
+    if [ -f "$OUTPUT_FILE" ]; then
+    FILE_CONTENT=$(cat "$OUTPUT_FILE")
 
-    if [ "$FIRST_RUN" = true ]; then
-        echo "$CONTENT"
-        FIRST_RUN=false
-    else
-        LINE_COUNT=$(echo "$CONTENT" | wc -l)
+    # Count lines (including empty)
+    CURRENT_LINE_COUNT=$(echo "$FILE_CONTENT" | wc -l)
 
-        # Move the cursor up by a line count
-        for ((i=0; i<LINE_COUNT; i++)); do
-            tput cuu1
-            tput el
+    # Move cursor up and clear previous output
+    if [ $PREVIOUS_LINE_COUNT -gt 0 ]; then
+        # Move up by the number of lines
+        for ((i=0; i<$PREVIOUS_LINE_COUNT; i++)); do
+            # Move up cursor
+            printf "\033[1A"
+            printf "\033[2K"
         done
+    fi 
 
-        echo "$CONTENT"
-    fi
+    printf "%s\n" "$FILE_CONTENT"
+    PREVIOUS_LINE_COUNT=$CURRENT_LINE_COUNT
 
     sleep 0.5
 done
