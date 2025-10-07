@@ -56,23 +56,24 @@ echo -e "$RIZZCOL[RizzAI]${RESET} Monitoring the output file: $OUTPUT_FILE"
 PREVIOUS_LINE_COUNT=0
 while true; do
     if [ -f "$OUTPUT_FILE" ]; then
-    FILE_CONTENT=$(cat "$OUTPUT_FILE")
+        FILE_CONTENT=$(cat "$OUTPUT_FILE")
 
-    # Count lines (including empty)
-    CURRENT_LINE_COUNT=$(echo "$FILE_CONTENT" | wc -l)
+        # Count lines (including empty)
+        CURRENT_LINE_COUNT=$(echo "$FILE_CONTENT" | wc -l)
 
-    # Move cursor up and clear previous output
-    if [ $PREVIOUS_LINE_COUNT -gt 0 ]; then
-        # Move up by the number of lines
-        for ((i=0; i<$PREVIOUS_LINE_COUNT; i++)); do
-            # Move up cursor
-            printf "\033[1A"
-            printf "\033[2K"
-        done
-    fi 
+        # Move cursor up and clear previous output
+        if [ $PREVIOUS_LINE_COUNT -gt 0 ]; then
+            # Move up by the number of lines
+            for ((i=0; i<$PREVIOUS_LINE_COUNT; i++)); do
+                # Move up cursor
+                printf "\033[1A"
+                printf "\033[2K"
+            done
+        fi 
 
-    printf "%s\n" "$FILE_CONTENT"
-    PREVIOUS_LINE_COUNT=$CURRENT_LINE_COUNT
+        printf "%s\n" "$FILE_CONTENT"
+        PREVIOUS_LINE_COUNT=$CURRENT_LINE_COUNT
+    fi
 
     sleep 0.5
 done
