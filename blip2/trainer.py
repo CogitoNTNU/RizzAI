@@ -63,7 +63,7 @@ training_args = TrainingArguments(
 trainer = Trainer(
     model=model,
     args=training_args,
-    train_dataset=train_dataset, #TODO: Replace with actual training set
+    train_dataset=train_dataset, #TODO: Replace with actual training set, see dataset_generator
     eval_dataset=val_dataset #TODO: Replace with actual validation set
 )
 

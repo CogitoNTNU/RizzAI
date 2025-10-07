@@ -60,12 +60,11 @@ def ask_question(question: str) -> str:
 
 
 description = """\
-DESCRIPTION OF THE GIRL: \
-Girl's name: Gabriela; \
+Gender: Female;\
+Name: Gabriela; \
 Age: 22; \
-Non-smoker, has a dog, drinks socially on weekends, sometimes works out, \
+She describes herself on her Tinder profile as Non-smoker, has a dog, drinks socially on weekends, sometimes works out, \
 loves hiking and outdoor activities. \
-I am a guy that is interested in her.\
 """
 
 natural_description = """\
@@ -79,7 +78,7 @@ I am a guy that is interested in her.\
 questions = [
     "Question: What is the best flirting opening line to start a conversation? Answer:",
     "What is the best flirting opening line to start a conversation? The best opening line is:",
-    "The best flirting opening line to start a conversation is",
+    "We matched on Tinder, and given this information i want you to reply with the perfect opening line:",
     # f"Question: What would be a good opening line to start a conversation? Answer:",
     # f"Question: What are some interesting facts I could mention about her? Answer:",
     # f"Question: What are some fun date ideas? Answer:",
