@@ -29,7 +29,7 @@ sleep 1
 
 # Reading part
 
-trap 'echo -e "Output monitoring ${RED}stopped. Have a nice day ${GREEN}:)"; exit 130' INT
+trap 'echo -e "Output monitoring ${RED}stopped. Have a nice day ${GREEN}:)${RESET}"; exit 130' INT
 
 # Get output file
 OUTPUT_FILE=$(ls job_output/*${JOB_ID}*.out 2>/dev/null | head -1)
@@ -64,7 +64,7 @@ while true; do
         # Move cursor up and clear previous output
         if [ $PREVIOUS_LINE_COUNT -gt 0 ]; then
             # Move up by the number of lines
-            for ((i=0; i<$PREVIOUS_LINE_COUNT; i++)); do
+            for ((i=0; i<$PREVIOUS_LINE_COUNT-1; i++)); do
                 # Move up cursor
                 printf "\033[1A"
                 printf "\033[2K"
