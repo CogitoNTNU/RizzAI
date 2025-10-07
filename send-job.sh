@@ -21,7 +21,7 @@ else
     exit 1
 fi
 
-BATCH_ID=$(sbatch $JOB_INPUT | grep -o '[0-9]*')
+JOB_ID=$(sbatch $JOB_INPUT | grep -o '[0-9]*')
 echo -e "$RIZZCOL[RizzAI]${RESET} Sent out batch job. Job ID: ${GREEN}$BATCH_ID${RESET}"
 
 # Wait a second
