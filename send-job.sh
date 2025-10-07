@@ -19,5 +19,5 @@ else
     exit 1
 fi
 
-BATCH_ID=$(sbatch $JOB_INPUT | grepo -o '[0-9]*')
-echo "${BOLD}${SALMON}[RizzAI]${RESET} Sent out batch jon. Job ID: ${GREEN}$BATCH_ID${RESET}"
+BATCH_ID=$(sbatch $JOB_INPUT | grep -o '[0-9]*')
+echo -e "${BOLD}${SALMON}[RizzAI]${RESET} Sent out batch jon. Job ID: ${GREEN}$BATCH_ID${RESET}"
