@@ -1,11 +1,11 @@
 import requests
+import torch
 from PIL import Image
 from transformers import (
     BitsAndBytesConfig,
-    Blip2Processor,
     Blip2ForConditionalGeneration,
+    Blip2Processor,
 )
-import torch
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"

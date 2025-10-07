@@ -43,15 +43,15 @@ def ask_question(question: str) -> str:
     out_ids = model.generate(
         **inputs,
         do_sample=True,
-        num_beams=3,
+        num_beams=4,
         max_length=256,
         min_length=20,
-        temperature=1.1,  # Higher creativity
+        temperature=1.2,  # Higher creativity
         top_p=0.95,
         top_k=100,
         repetition_penalty=1.2,
         no_repeat_ngram_size=2,
-        length_penalty=1.0,  # TODO: Play with shorter or longer answers
+        length_penalty=0.9,  # TODO: Play with shorter or longer answers
     )
 
     answer = processor.batch_decode(out_ids, skip_special_tokens=True)[0].strip()
@@ -79,6 +79,8 @@ questions = [
     "Question: What is the best flirting opening line to start a conversation? Answer:",
     "What is the best flirting opening line to start a conversation? The best opening line is:",
     "We matched on Tinder, and given this information i want you to reply with the perfect opening line:",
+    "The best flirting opening line to start a conversation is",
+    'The best flirting line to get her attention is "',
     # f"Question: What would be a good opening line to start a conversation? Answer:",
     # f"Question: What are some interesting facts I could mention about her? Answer:",
     # f"Question: What are some fun date ideas? Answer:",
