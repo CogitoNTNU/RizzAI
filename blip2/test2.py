@@ -1,18 +1,15 @@
-from PIL import Image
 import requests
 import torch
-
+from PIL import Image
 from transformers import (
+    Blip2Config,
     Blip2ForConditionalGeneration,
     Blip2Processor,
-    Blip2Config,
-    TrainingArguments,
-    Trainer,
     Blip2QFormerConfig,
     Blip2VisionConfig,
-    Blip2QFormerConfig,
     OPTConfig,
 )
+
 
 qformer_config = Blip2QFormerConfig()
 vision_config = Blip2VisionConfig()  # Image encoder Keep this

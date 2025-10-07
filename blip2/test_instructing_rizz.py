@@ -1,7 +1,7 @@
-from transformers import InstructBlipProcessor, InstructBlipForConditionalGeneration
 import torch
 from PIL import Image
-import requests
+from transformers import InstructBlipForConditionalGeneration, InstructBlipProcessor
+
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
