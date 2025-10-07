@@ -55,13 +55,4 @@ fi
 echo -e "$RIZZCOL[RizzAI]${RESET} Monitoring the output file: $OUTPUT_FILE"
 
 # Save the cursor at this pos
-tput sc
-
-while true; do
-    tput rc
-    tput ed
-
-    cat "$OUTPUT_FILE"
-    
-    sleep 0.5
-done
+tail -f "$OUTPUT_FILE"
