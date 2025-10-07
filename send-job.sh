@@ -54,5 +54,3 @@ fi
 
 echo -e "$RIZZCOL[RizzAI]${RESET} Monitoring the output file: $OUTPUT_FILE"
 
-# Save the cursor at this pos
-tail -f "$OUTPUT_FILE"
