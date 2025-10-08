@@ -23,7 +23,7 @@ URL = os.getenv("SCRAPE_URL", "NOT-SET")
 PROFILE_FOLDER = os.getenv(
     "PROFILE_FOLDER", "your-profile-folder"
 )  # Replace with your Firefox profile folder name
-WIN_USERNAME = os.getenv("WIN_USERNAME")
+WIN_USERNAME = os.getenv("WIN_USERNAME", "your-windows-username")
 LAST_ID_PATH = Path("data_collection/profiles/.last_id")
 
 
@@ -48,14 +48,23 @@ last_user_id: int = read_last_id()
 options = Options()
 
 # Verify the profile folder path
-profile_path = f"C:\\Users\\{WIN_USERNAME}\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\{PROFILE_FOLDER}"
-if not os.path.exists(profile_path):
+profile_path = (
+    Path("C:\\Users")
+    / WIN_USERNAME
+    / "AppData"
+    / "Roaming"
+    / "Mozilla"
+    / "Firefox"
+    / "Profiles"
+    / PROFILE_FOLDER
+)
+if not profile_path.exists():
     raise Exception(
         f"Specified profile folder '{profile_path}' does not exist. Please check the PROFILE_FOLDER and WIN_USERNAME environment variables."
     )
 
 options.add_argument("-profile")
-options.add_argument(profile_path)
+options.add_argument(str(profile_path))
 
 driver = webdriver.Firefox(service=Service(), options=options)
 
