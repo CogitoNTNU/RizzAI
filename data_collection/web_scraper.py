@@ -487,7 +487,7 @@ def main() -> None:
 
     input("Press Enter to start scraping...")
 
-    profiles_to_scrape = IntRef(40)
+    profiles_to_scrape = IntRef(50)
 
     total_profiles = profiles_to_scrape.value
     want_more = True
