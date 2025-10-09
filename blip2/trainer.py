@@ -62,31 +62,64 @@ def to_parsable_data(input_path, supervised_path):
     with open(supervised_path, "r") as f:
         corrective_data = json.load(f)
 
-    profile_text = ""
-    count = 0
-    for key in data:
-        if(count != 0 and count != 4):
-            profile_text += str(key)
-            if type(data[key]) is not list:
-                profile_text += str(data[key])+". "
-            else:
-                for elem in data[key]:
-                    profile_text += str(elem)
-                profile_text += ". "
-        count += 1
-    
-    image_list = []
-    image_prompt_list = []
-    for i in data["image_path"]:
-        image_list.append(Image.open(i).convert("RGB"))
-        image_prompt_list.append({"type": "image"})
+    profiles = {}
+
+    for profile in data:
+        profiles[profile["id"]] = {
+            "text": "",
+            "images": [],
+            "image_prompt_list": []
+        }
+
+    for profile in data:
+        currProf = profiles[profile["id"]]
+
+        currProf['text'] += "Name: " + profile["name"] + ". "
+        currProf['text'] += "Age: " + profile["age"] + ". "
+        currProf['text'] += "Lives In: " + profile["lives_in"] + ". "
+        currProf['text'] += "About Me: " + profile["about_me"] + ". "
         
-    image_prompt_list.append({"type": "text", "text": "Her profile:"+profile_text})
-    prompt = [{"role": "user", "content": image_prompt_list}]
+        currProf['text'] += "Essentials: "
+        for ess in profile["essentials"]:
+            currProf['text'] += ess + ","
+        currProf['text'] += ". "
+
+        currProf['text'] += "Lifestyle: "
+        for lf in profile["lifestyle"]:
+            currProf['text'] += lf + ","
+        currProf['text'] += ". "
+
+        currProf['text'] += "Interests: "
+        for interest in profile["interests"]:
+            currProf['text'] += interest + ","
+        currProf['text'] += ". "
+    
+    # Get images
+    IMAGE_AMOUNT = 10
+    
+    # Append image paths
+    image_path = input_path + "/../images"
+
+    for profile in data:
+        currProf = profiles[profile["id"]]
+        
+        image_folder = image_path + "/" + profile["id"]
+
+        for i in range(IMAGE_AMOUNT):
+            try:
+                currProf['images'].append(Image.open(image_folder + "/image_" + i + ".jpg").convert("RGB"))
+                currProf['image_prompt_list'].append({"type": "image"})
+            finally:
+                continue
+        currProf['image_prompt_list'].append({"type": "text", "text": "Her profile: " + currProf['text']})
+        
+    for id in profiles:
+        prompt = [{"role": "user", "content": profiles[id]['image_prompt_list']}]
+
+
     chosen = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["chosen"]}]}]
     rejected = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["rejected"]}]}]
     return {"prompt": prompt, "images": image_list, "chosen": chosen, "rejected": rejected}
-
 #<------------------------------------
 
 
