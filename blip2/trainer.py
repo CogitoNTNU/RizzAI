@@ -116,7 +116,7 @@ def to_parsable_data(input_path, supervised_path):
     for id in profiles:
         prompt = [{"role": "user", "content": profiles[id]['image_prompt_list']}]
 
-
+    # TO DO
     chosen = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["chosen"]}]}]
     rejected = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["rejected"]}]}]
     return {"prompt": prompt, "images": image_list, "chosen": chosen, "rejected": rejected}
