@@ -10,7 +10,7 @@ from transformers import (Blip2ForConditionalGeneration,
                           Blip2VisionConfig,
                           Blip2QFormerConfig,
                           OPTConfig)
-from datasets import Dataset
+from datasets import Dataset, load_dataset
 
 
 
@@ -142,13 +142,16 @@ training_args = TrainingArguments(
     fp16=True
 )
 
-train_dataset, val_dataset = Dataset(to_parsable_data("string to json with data", "string to json with correction"))
+ 
+ddataset = Dataset.from_dict(to_parsable_data("string to json with data", "string to json with correction"))
+split_dataset = ddataset.train_test_split(test_size=0.5, seed=42)
+train_dataset, valid_dataset = split_dataset["train"], split_dataset["test"]
 
 trainer = Trainer(
     model=model,
     args=training_args,
     train_dataset=train_dataset, 
-    eval_dataset=val_dataset, 
+    eval_dataset=valid_dataset, 
     tokenizer=processor.tokenizer
 )
 
