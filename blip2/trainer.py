@@ -49,7 +49,7 @@ processor = Blip2Processor.from_pretrained("Salesforce/blip2-flan-t5-xl")
 
 # Format data ----------------------->
 
-def to_conversational(input_path, supervised_path):
+def to_parsable_data(input_path, supervised_path):
     """
     Convert prompt from "xxx" to [{"role": "user", "content": [{"type": "image"}, {"type": "text", "text": "xxx"}]}]
     and chosen and rejected from "xxx" to [{"role": "assistant", "content": [{"type": "text", "text": "xxx"}]}].
