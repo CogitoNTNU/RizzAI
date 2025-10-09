@@ -14,7 +14,7 @@ from transformers import (
     TrainingArguments,
 )
 
-from prepare_dataset import prepare_dataset
+from blip2.prepare_dataset import prepare_dataset
 
 
 def print_trainable_parameters(model):
@@ -66,6 +66,7 @@ class BLIP2Trainer(Trainer):
     def get_train_dataloader(self):
         """Override to use custom collate function."""
         from functools import partial
+
         from torch.utils.data import DataLoader
 
         collate = partial(collate_fn, processor=self.processor, device=self.args.device)
@@ -79,6 +80,7 @@ class BLIP2Trainer(Trainer):
     def get_eval_dataloader(self, eval_dataset=None):
         """Override to use custom collate function."""
         from functools import partial
+
         from torch.utils.data import DataLoader
 
         eval_dataset = eval_dataset if eval_dataset is not None else self.eval_dataset

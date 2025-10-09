@@ -4,8 +4,8 @@ This script loads the fine-tuned model and generates opening lines for profiles.
 """
 
 import torch
-from PIL import Image
 from peft import PeftModel
+from PIL import Image
 from transformers import (
     BitsAndBytesConfig,
     Blip2ForConditionalGeneration,
