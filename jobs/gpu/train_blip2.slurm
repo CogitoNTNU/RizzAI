@@ -9,16 +9,17 @@
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --output=job_output/%j_blip2_train.out
 
-# Load required modules
-module load cuda/11.7
+# # Load required modules
+# module load cuda/11.7
 
-# Activate virtual environment (adjust path as needed)
-source .venv/bin/activate
 
 # Print some info
 echo "Job started on $(hostname) at $(date)"
 echo "CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES"
 nvidia-smi
+
+git pull
+uv sync
 
 # Run training
 uv run python -m blip2.train_blip2
