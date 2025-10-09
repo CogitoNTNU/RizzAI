@@ -1,3 +1,6 @@
+import json
+from PIL import Image
+import os
 from transformers import (Blip2ForConditionalGeneration, 
                           Blip2Processor,
                           Blip2Config, 
@@ -7,6 +10,7 @@ from transformers import (Blip2ForConditionalGeneration,
                           Blip2VisionConfig,
                           Blip2QFormerConfig,
                           OPTConfig)
+
 
 
 #Config for the model used --------->
@@ -44,10 +48,88 @@ processor = Blip2Processor.from_pretrained("Salesforce/blip2-flan-t5-xl")
 
 #<----------------
 
+# Format data ----------------------->
+
+def to_parsable_data(input_path, supervised_path):
+    """
+    Convert prompt from "xxx" to [{"role": "user", "content": [{"type": "image"}, {"type": "text", "text": "xxx"}]}]
+    and chosen and rejected from "xxx" to [{"role": "assistant", "content": [{"type": "text", "text": "xxx"}]}].
+    Images are wrapped into a list.
+    """
+    with open(input_path, "r") as f:
+        data = json.load(f)
+    
+    with open(supervised_path, "r") as f:
+        corrective_data = json.load(f)
+
+    profiles = {}
+
+    for profile in data:
+        profiles[profile["id"]] = {
+            "text": "",
+            "images": [],
+            "image_prompt_list": []
+        }
+
+    for profile in data:
+        currProf = profiles[profile["id"]]
+
+        currProf['text'] += "Name: " + profile["name"] + ". "
+        currProf['text'] += "Age: " + profile["age"] + ". "
+        currProf['text'] += "Lives In: " + profile["lives_in"] + ". "
+        currProf['text'] += "About Me: " + profile["about_me"] + ". "
+        
+        currProf['text'] += "Essentials: "
+        for ess in profile["essentials"]:
+            currProf['text'] += ess + ","
+        currProf['text'] += ". "
+
+        currProf['text'] += "Lifestyle: "
+        for lf in profile["lifestyle"]:
+            currProf['text'] += lf + ","
+        currProf['text'] += ". "
+
+        currProf['text'] += "Interests: "
+        for interest in profile["interests"]:
+            currProf['text'] += interest + ","
+        currProf['text'] += ". "
+    
+    # Get images
+    IMAGE_AMOUNT = 10
+    
+    # Append image paths
+    image_path = input_path + "/../images"
+
+    for profile in data:
+        currProf = profiles[profile["id"]]
+        
+        image_folder = image_path + "/" + profile["id"]
+
+        for i in range(IMAGE_AMOUNT):
+            try:
+                currProf['images'].append(Image.open(image_folder + "/image_" + i + ".jpg").convert("RGB"))
+                currProf['image_prompt_list'].append({"type": "image"})
+            finally:
+                continue
+        currProf['image_prompt_list'].append({"type": "text", "text": "Her profile: " + currProf['text']})
+        
+    for id in profiles:
+        prompt = [{"role": "user", "content": profiles[id]['image_prompt_list']}]
+
+    # TO DO
+    chosen = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["chosen"]}]}]
+    rejected = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["rejected"]}]}]
+    return {"prompt": prompt, "images": image_list, "chosen": chosen, "rejected": rejected}
+#<------------------------------------
+
+
 #Define set and run training loop ---------->
 # Freeze vision encoder
 for param in model.vision_model.parameters():
     param.requires_grad = False
+
+os.mkdir("./results")
+os.mkdir("./logs")
 
 training_args = TrainingArguments(
     output_dir='./results', # TODO: Add result directory
@@ -64,7 +146,8 @@ trainer = Trainer(
     model=model,
     args=training_args,
     train_dataset=train_dataset, #TODO: Replace with actual training set, see dataset_generator
-    eval_dataset=val_dataset #TODO: Replace with actual validation set
+    eval_dataset=val_dataset, #TODO: Replace with actual validation set
+    tokenizer=processor.tokenizer
 )
 
 trainer.train()
