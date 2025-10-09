@@ -10,6 +10,7 @@ from transformers import (Blip2ForConditionalGeneration,
                           Blip2VisionConfig,
                           Blip2QFormerConfig,
                           OPTConfig)
+from datasets import Dataset
 
 
 
@@ -94,17 +95,15 @@ def to_parsable_data(input_path, supervised_path):
             currProf['text'] += interest + ","
         currProf['text'] += ". "
     
-    # Get images
-    IMAGE_AMOUNT = 10
-    
     # Append image paths
     image_path = input_path + "/../images"
+
+    IMAGE_AMOUNT = len(os.listdir(image_path))
 
     for profile in data:
         currProf = profiles[profile["id"]]
         
-        image_folder = image_path + "/" + profile["id"]
-
+        image_folder = image_path + "/" + profile["id"] 
         for i in range(IMAGE_AMOUNT):
             try:
                 currProf['images'].append(Image.open(image_folder + "/image_" + i + ".jpg").convert("RGB"))
@@ -112,14 +111,15 @@ def to_parsable_data(input_path, supervised_path):
             finally:
                 continue
         currProf['image_prompt_list'].append({"type": "text", "text": "Her profile: " + currProf['text']})
-        
+    
+    output_dict = {}
     for id in profiles:
         prompt = [{"role": "user", "content": profiles[id]['image_prompt_list']}]
-
-    # TO DO
-    chosen = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["chosen"]}]}]
-    rejected = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["rejected"]}]}]
-    return {"prompt": prompt, "images": image_list, "chosen": chosen, "rejected": rejected}
+        chosen = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["chosen"]}]}]
+        rejected = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["rejected"]}]}]
+        output_dict[id]={"prompt": prompt, "images": profiles[id]['images'], "chosen": chosen, "rejected": rejected}
+    
+    return output_dict
 #<------------------------------------
 
 
@@ -142,11 +142,13 @@ training_args = TrainingArguments(
     fp16=True
 )
 
+train_dataset, val_dataset = Dataset(to_parsable_data("string to json with data", "string to json with correction"))
+
 trainer = Trainer(
     model=model,
     args=training_args,
-    train_dataset=train_dataset, #TODO: Replace with actual training set, see dataset_generator
-    eval_dataset=val_dataset, #TODO: Replace with actual validation set
+    train_dataset=train_dataset, 
+    eval_dataset=val_dataset, 
     tokenizer=processor.tokenizer
 )
 
