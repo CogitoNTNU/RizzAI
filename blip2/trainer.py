@@ -1,5 +1,6 @@
 import json
 from PIL import Image
+import os
 from transformers import (Blip2ForConditionalGeneration, 
                           Blip2Processor,
                           Blip2Config, 
@@ -94,6 +95,9 @@ def to_parsable_data(input_path, supervised_path):
 for param in model.vision_model.parameters():
     param.requires_grad = False
 
+os.mkdir("./results")
+os.mkdir("./logs")
+
 training_args = TrainingArguments(
     output_dir='./results', # TODO: Add result directory
     per_device_train_batch_size=8,
@@ -109,7 +113,8 @@ trainer = Trainer(
     model=model,
     args=training_args,
     train_dataset=train_dataset, #TODO: Replace with actual training set, see dataset_generator
-    eval_dataset=val_dataset #TODO: Replace with actual validation set
+    eval_dataset=val_dataset, #TODO: Replace with actual validation set
+    tokenizer=processor.tokenizer
 )
 
 trainer.train()
