@@ -102,8 +102,8 @@ def to_parsable_data(input_path):
 
         # Interests
         currProf['text'] += "Interests: "
-        for int_prefix, int_data in profile["interests"].items():
-            currProf['text'] += int_prefix + ": " + int_data + ", "
+        for inter in profile["interests"].items():
+            currProf['text'] += inter +  ", "
         currProf['text'] += ". "
 
         # Anthem
