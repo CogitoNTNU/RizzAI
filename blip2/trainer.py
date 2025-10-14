@@ -146,7 +146,7 @@ training_args = TrainingArguments(
 )
 
  
-ddataset = Dataset.from_dict(to_parsable_data("string to json with data", "string to json with correction"))
+ddataset = Dataset.from_dict(to_parsable_data("/cluster/home/kristiac/rizzai/RizzAI/data_collection/profiles/text_data.json", "/cluster/home/kristiac/rizzai/RizzAI/data_collection/supervised"))
 split_dataset = ddataset.train_test_split(test_size=0.5, seed=42)
 train_dataset, valid_dataset = split_dataset["train"], split_dataset["test"]
 
