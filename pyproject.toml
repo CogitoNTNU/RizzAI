@@ -11,6 +11,7 @@ dependencies = [
     "datasets>=4.2.0",
     "dotenv>=0.9.9",
     "geckodriver-autoinstaller>=0.1.0",
+    "ollama>=0.6.0",
     "peft>=0.7.0",
     "pillow>=11.3.0",
     "requests>=2.32.5",
