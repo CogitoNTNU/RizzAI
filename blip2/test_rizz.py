@@ -28,9 +28,7 @@ print("Testing image captioning...")
 # First test: Image captioning
 inputs_caption = processor(images=image, return_tensors="pt").to(device, dtype=dtype)
 generated_ids_caption = model.generate(**inputs_caption, max_new_tokens=20)
-caption = processor.batch_decode(generated_ids_caption, skip_special_tokens=True)[
-    0
-].strip()
+caption = processor.batch_decode(generated_ids_caption, skip_special_tokens=True)[0].strip()
 print(f"Caption: '{caption}'")
 
 print("\nTesting question answering...\n")

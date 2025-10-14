@@ -36,7 +36,7 @@ with open(str(folder_path+json_file), "r") as f:
 profiles = {}
 
 for profile in data:
-    profiles[profile["id"]] = {
+    profiles[profile] = {
         "text": "",
         "image_descriptions": [],
     }
@@ -113,6 +113,7 @@ def create_first_message(data, l_model):
         user_id (str): The ID of the user."""
     return ollama.chat(l_model, messages=[{'role': 'user', 'content': data_to_prompt(data)}])
 
+
 annontation_set = {}
 for pid in profiles:
-    create_first_message(pid, "llama3.1")
+    annontation_set[pid] = {"chosen": create_first_message(profiles[pid], "llama3.1"), "rejected": use just the fucking lm}
