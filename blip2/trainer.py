@@ -107,7 +107,8 @@ def to_parsable_data(input_path):
         currProf['text'] += ". "
 
         # Anthem
-        currProf['text'] += "Anthen: " + profile['anthem']
+        if profile['anthem'] != None:
+            currProf['text'] += "Anthem: " + profile['anthem']
     
     # Append image paths
     image_path = input_path + "/../images"
