@@ -51,7 +51,7 @@ processor = Blip2Processor.from_pretrained("Salesforce/blip2-flan-t5-xl")
 
 # Format data ----------------------->
 
-def to_parsable_data(input_path, supervised_path):
+def to_parsable_data(input_path):
     """
     Convert prompt from "xxx" to [{"role": "user", "content": [{"type": "image"}, {"type": "text", "text": "xxx"}]}]
     and chosen and rejected from "xxx" to [{"role": "assistant", "content": [{"type": "text", "text": "xxx"}]}].
@@ -60,8 +60,8 @@ def to_parsable_data(input_path, supervised_path):
     with open(input_path, "r") as f:
         data = json.load(f)
     
-    with open(supervised_path, "r") as f:
-        corrective_data = json.load(f)
+    # with open(supervised_path, "r") as f:
+    #     corrective_data = json.load(f)
 
     profiles = {}
 
@@ -125,8 +125,8 @@ def to_parsable_data(input_path, supervised_path):
     output_dict = {}
     for id in profiles:
         prompt = [{"role": "user", "content": profiles[id]['image_prompt_list']}]
-        chosen = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["chosen"]}]}]
-        rejected = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["rejected"]}]}]
+        chosen = [{"role": "assistant", "content": [{"type": "text", "text": "chosen"}]}]
+        rejected = [{"role": "assistant", "content": [{"type": "text", "text": "rejected"}]}]
         output_dict[id]={"prompt": prompt, "images": profiles[id]['images'], "chosen": chosen, "rejected": rejected}
     
     return output_dict
@@ -172,3 +172,4 @@ def to_parsable_data(input_path, supervised_path):
 
 #<--------------------------------
 
+output_data = to_parsable_data("../data_collection/profiles/text_data.json")
