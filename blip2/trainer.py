@@ -16,7 +16,7 @@ from datasets import Dataset, load_dataset
 
 #Config for the model used --------->
 
-# qformer_config = Blip2QFormerConfig() 
+qformer_config = Blip2QFormerConfig() 
 
 """hidden_size=700, 
                                     num_hidden_layers=10, 
@@ -35,17 +35,17 @@ from datasets import Dataset, load_dataset
                                     use_qformer_text_input=False) #This we want to improve and change """
 
 
-# vision_config = Blip2VisionConfig() #Image encoder Keep this 
-# text_config = OPTConfig() #Language model - Keep this
+vision_config = Blip2VisionConfig() #Image encoder Keep this 
+text_config = OPTConfig() #Language model - Keep this
 
-# configuration = Blip2Config.from_text_vision_configs(vision_config, qformer_config, text_config) #Blip2Config()
+configuration = Blip2Config.from_text_vision_configs(vision_config, qformer_config, text_config) #Blip2Config()
 #<------------------------------
 
 
 # From model we generate/load the model we are going to train ----------->
-# model = Blip2ForConditionalGeneration(configuration)
+model = Blip2ForConditionalGeneration(configuration)
 
-# processor = Blip2Processor.from_pretrained("Salesforce/blip2-flan-t5-xl")
+processor = Blip2Processor.from_pretrained("Salesforce/blip2-flan-t5-xl")
 
 #<----------------
 
@@ -139,40 +139,40 @@ def to_parsable_data(input_path):
 
 #Define set and run training loop ---------->
 # Freeze vision encoder
-# for param in model.vision_model.parameters():
-#     param.requires_grad = False
+for param in model.vision_model.parameters():
+    param.requires_grad = False
 
-# if not os.path.exists("./results"):
-#     os.mkdir("./results")
+if not os.path.exists("./results"):
+    os.mkdir("./results")
 
-# if not os.path.exists("./logs"):
-#     os.mkdir("./logs")
+if not os.path.exists("./logs"):
+    os.mkdir("./logs")
 
-# training_args = TrainingArguments(
-#     output_dir='./results', # TODO: Add result directory
-#     per_device_train_batch_size=8,
-#     num_train_epochs=3,
-#     learning_rate=5e-5,
-#     evaluation_strategy='epoch',
-#     save_strategy='epoch',
-#     logging_dir='./logs', #TODO: Add log directory
-#     fp16=True
-# )
+training_args = TrainingArguments(
+    output_dir='./results', # TODO: Add result directory
+    per_device_train_batch_size=8,
+    num_train_epochs=3,
+    learning_rate=5e-5,
+    evaluation_strategy='epoch',
+    save_strategy='epoch',
+    logging_dir='./logs', #TODO: Add log directory
+    fp16=True
+)
 
  
-# ddataset = Dataset.from_dict(to_parsable_data("string to json with data", "string to json with correction"))
-# split_dataset = ddataset.train_test_split(test_size=0.5, seed=42)
-# train_dataset, valid_dataset = split_dataset["train"], split_dataset["test"]
+ddataset = Dataset.from_dict(to_parsable_data("string to json with data", "string to json with correction"))
+split_dataset = ddataset.train_test_split(test_size=0.5, seed=42)
+train_dataset, valid_dataset = split_dataset["train"], split_dataset["test"]
 
-# trainer = Trainer(
-#     model=model,
-#     args=training_args,
-#     train_dataset=train_dataset, 
-#     eval_dataset=valid_dataset, 
-#     tokenizer=processor.tokenizer
-# )
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=train_dataset, 
+    eval_dataset=valid_dataset, 
+    tokenizer=processor.tokenizer
+)
 
-# trainer.train()
+trainer.train()
 
 #<--------------------------------
 
