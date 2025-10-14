@@ -16,7 +16,7 @@ from datasets import Dataset, load_dataset
 
 #Config for the model used --------->
 
-qformer_config = Blip2QFormerConfig() 
+# qformer_config = Blip2QFormerConfig() 
 
 """hidden_size=700, 
                                     num_hidden_layers=10, 
@@ -35,17 +35,17 @@ qformer_config = Blip2QFormerConfig()
                                     use_qformer_text_input=False) #This we want to improve and change """
 
 
-vision_config = Blip2VisionConfig() #Image encoder Keep this 
-text_config = OPTConfig() #Language model - Keep this
+# vision_config = Blip2VisionConfig() #Image encoder Keep this 
+# text_config = OPTConfig() #Language model - Keep this
 
-configuration = Blip2Config.from_text_vision_configs(vision_config, qformer_config, text_config) #Blip2Config()
+# configuration = Blip2Config.from_text_vision_configs(vision_config, qformer_config, text_config) #Blip2Config()
 #<------------------------------
 
 
 # From model we generate/load the model we are going to train ----------->
-model = Blip2ForConditionalGeneration(configuration)
+# model = Blip2ForConditionalGeneration(configuration)
 
-processor = Blip2Processor.from_pretrained("Salesforce/blip2-flan-t5-xl")
+# processor = Blip2Processor.from_pretrained("Salesforce/blip2-flan-t5-xl")
 
 #<----------------
 
