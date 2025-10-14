@@ -128,8 +128,11 @@ def to_parsable_data(input_path, supervised_path):
 for param in model.vision_model.parameters():
     param.requires_grad = False
 
-os.mkdir("./results")
-os.mkdir("./logs")
+if not os.path.exists("./results"):
+    os.mkdir("./results")
+
+if not os.path.exists("./logs"):
+    os.mkdir("./logs")
 
 training_args = TrainingArguments(
     output_dir='./results', # TODO: Add result directory
