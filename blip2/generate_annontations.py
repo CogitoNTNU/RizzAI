@@ -90,7 +90,7 @@ def data_to_prompt(data):
     
     return profile_info + ". And here is her profile info:" + data["text"] + ". Give me the perfect opening line to this woman"
 
-def create_first_message(data, user_id, l_model):
+def create_first_message(data, l_model):
     """
     Create the first message for a user based on provided data.
 
@@ -99,5 +99,6 @@ def create_first_message(data, user_id, l_model):
         user_id (str): The ID of the user."""
     return ollama.chat(l_model, messages=[{'role': 'user', 'content': data_to_prompt(data)}])
 
+annontation_set = {}
 for pid in profiles:
-    create_first_message(pid)
+    create_first_message(pid, "llama3.1")
