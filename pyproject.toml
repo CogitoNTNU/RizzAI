@@ -11,11 +11,13 @@ dependencies = [
     "datasets>=4.2.0",
     "dotenv>=0.9.9",
     "geckodriver-autoinstaller>=0.1.0",
+    "peft>=0.7.0",
     "pillow>=11.3.0",
     "requests>=2.32.5",
     "selenium>=4.35.0",
     "torch>=2.8.0",
     "transformers>=4.56.2",
+    "trl>=0.7.0",
     "types-requests>=2.32.4.20250913",
 ]
 
