@@ -1022,7 +1022,7 @@ dev = [
 requires-dist = [
     { name = "accelerate", specifier = ">=1.10.1" },
     { name = "bitsandbytes", specifier = ">=0.48.1" },
-    { name = "datasets", specifier = ">=2.14.0" },
+    { name = "datasets", specifier = ">=4.2.0" },
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "geckodriver-autoinstaller", specifier = ">=0.1.0" },
     { name = "peft", specifier = ">=0.7.0" },

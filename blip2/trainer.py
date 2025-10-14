@@ -38,7 +38,7 @@ qformer_config = Blip2QFormerConfig()
 vision_config = Blip2VisionConfig() #Image encoder Keep this 
 text_config = OPTConfig() #Language model - Keep this
 
-configuration = Blip2Config.from_text_vision_configs(vision_config, qformer_config, text_config)#Blip2Config()
+configuration = Blip2Config.from_text_vision_configs(vision_config, qformer_config, text_config) #Blip2Config()
 #<------------------------------
 
 
@@ -51,7 +51,7 @@ processor = Blip2Processor.from_pretrained("Salesforce/blip2-flan-t5-xl")
 
 # Format data ----------------------->
 
-def to_parsable_data(input_path, supervised_path):
+def to_parsable_data(input_path):
     """
     Convert prompt from "xxx" to [{"role": "user", "content": [{"type": "image"}, {"type": "text", "text": "xxx"}]}]
     and chosen and rejected from "xxx" to [{"role": "assistant", "content": [{"type": "text", "text": "xxx"}]}].
@@ -59,51 +59,65 @@ def to_parsable_data(input_path, supervised_path):
     """
     with open(input_path, "r") as f:
         data = json.load(f)
-    
-    with open(supervised_path, "r") as f:
-        corrective_data = json.load(f)
+
+    # with open(supervised_path, "r") as f:
+    #     corrective_data = json.load(f)
 
     profiles = {}
 
     for profile in data:
-        profiles[profile["id"]] = {
+        profiles[profile] = {
             "text": "",
             "images": [],
             "image_prompt_list": []
         }
 
-    for profile in data:
-        currProf = profiles[profile["id"]]
+    for profile_id in data:
+        currProf = profiles[profile_id]
+        profile = data[profile_id]
 
-        currProf['text'] += "Name: " + profile["name"] + ". "
-        currProf['text'] += "Age: " + profile["age"] + ". "
-        currProf['text'] += "Lives In: " + profile["lives_in"] + ". "
-        currProf['text'] += "About Me: " + profile["about_me"] + ". "
+        if profile['name'] != None:
+            currProf['text'] += "Name: " + profile["name"] + ". "
+        if profile['about_me'] != None:
+            currProf['text'] += "About Me: " + profile["about_me"] + ". "
         
+        # Essentials
         currProf['text'] += "Essentials: "
         for ess in profile["essentials"]:
             currProf['text'] += ess + ","
         currProf['text'] += ". "
 
-        currProf['text'] += "Lifestyle: "
-        for lf in profile["lifestyle"]:
-            currProf['text'] += lf + ","
+        # Basics
+        currProf['text'] += "Basics: "
+        for bas_prefix, bas_data in profile['basics'].items():
+            currProf['text'] += bas_prefix + ": " + bas_data + ", "
         currProf['text'] += ". "
 
-        currProf['text'] += "Interests: "
-        for interest in profile["interests"]:
-            currProf['text'] += interest + ","
+        # Lifestyle
+        currProf['text'] += "Lifestyle: "
+        for lf_prefix, lf_data in profile["lifestyle"].items():
+            currProf['text'] += lf_prefix + ": " + lf_data + ", "
         currProf['text'] += ". "
+
+        # Interests
+        currProf['text'] += "Interests: "
+        for inter in profile["interests"]:
+            currProf['text'] += inter +  ", "
+        currProf['text'] += ". "
+
+        # Anthem
+        if profile['anthem'] != None:
+            currProf['text'] += "Anthem: " + profile['anthem']
     
     # Append image paths
-    image_path = input_path + "/../images"
+    image_path = input_path.replace("text_data.json", "") + "images"
 
     IMAGE_AMOUNT = len(os.listdir(image_path))
 
-    for profile in data:
-        currProf = profiles[profile["id"]]
+    for profile_id in data:
+        currProf = profiles[profile_id]
         
-        image_folder = image_path + "/" + profile["id"] 
+        image_folder = image_path + "/" + profile_id
         for i in range(IMAGE_AMOUNT):
             try:
                 currProf['images'].append(Image.open(image_folder + "/image_" + i + ".jpg").convert("RGB"))
@@ -115,8 +129,8 @@ def to_parsable_data(input_path, supervised_path):
     output_dict = {}
     for id in profiles:
         prompt = [{"role": "user", "content": profiles[id]['image_prompt_list']}]
-        chosen = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["chosen"]}]}]
-        rejected = [{"role": "assistant", "content": [{"type": "text", "text": corrective_data["rejected"]}]}]
+        chosen = [{"role": "assistant", "content": [{"type": "text", "text": "chosen"}]}]
+        rejected = [{"role": "assistant", "content": [{"type": "text", "text": "rejected"}]}]
         output_dict[id]={"prompt": prompt, "images": profiles[id]['images'], "chosen": chosen, "rejected": rejected}
     
     return output_dict
@@ -161,3 +175,5 @@ trainer = Trainer(
 trainer.train()
 
 #<--------------------------------
+
+output_data = to_parsable_data("./data_collection/profiles/text_data.json")
