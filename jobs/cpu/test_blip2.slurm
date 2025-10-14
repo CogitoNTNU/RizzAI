@@ -18,6 +18,6 @@ git pull
 uv sync
 
 # Run training
-uv run python -m blip2.train_blip2
+uv run python -m blip2.test_finetuned
 
 echo "Job finished at $(date)"

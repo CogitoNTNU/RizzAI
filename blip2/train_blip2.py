@@ -158,7 +158,8 @@ def main():
         learning_rate=2e-4,
         fp16=device == "cuda",  # Use mixed precision on GPU
         logging_steps=10,
-        evaluation_strategy="steps",
+        eval_strategy="steps",
+        save_strategy="steps",  # Ensure alignment with evaluation
         eval_steps=50,
         save_steps=100,
         save_total_limit=3,
