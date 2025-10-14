@@ -75,8 +75,9 @@ def to_parsable_data(input_path):
             "image_prompt_list": []
         }
 
-    for profile in data:
-        currProf = profiles[profile]
+    for profile_id in data:
+        currProf = profiles[profile_id]
+        profile = data[profile_id]
 
         currProf['text'] += "Name: " + profile["name"] + ". "
         currProf['text'] += "About Me: " + profile["about_me"] + ". "
