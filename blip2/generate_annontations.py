@@ -41,38 +41,52 @@ for profile in data:
         "image_descriptions": [],
     }
 
-for profile in data:
-    currProf = profiles[profile["id"]]
+for profile_id in data:
+    currProf = profiles[profile_id]
+    profile = data[profile_id]
 
-    currProf['text'] += "Name: " + profile["name"] + ". "
-    currProf['text'] += "Age: " + profile["age"] + ". "
-    currProf['text'] += "Lives In: " + profile["lives_in"] + ". "
-    currProf['text'] += "About Me: " + profile["about_me"] + ". "
+    if profile['name'] != None:
+        currProf['text'] += "Name: " + profile["name"] + ". "
+    if profile['about_me'] != None:
+        currProf['text'] += "About Me: " + profile["about_me"] + ". "
     
+    # Essentials
     currProf['text'] += "Essentials: "
     for ess in profile["essentials"]:
         currProf['text'] += ess + ","
     currProf['text'] += ". "
 
-    currProf['text'] += "Lifestyle: "
-    for lf in profile["lifestyle"]:
-        currProf['text'] += lf + ","
+    # Basics
+    currProf['text'] += "Basics: "
+    for bas_prefix, bas_data in profile['basics'].items():
+        currProf['text'] += bas_prefix + ": " + bas_data + ", "
     currProf['text'] += ". "
 
-    currProf['text'] += "Interests: "
-    for interest in profile["interests"]:
-        currProf['text'] += interest + ","
+    # Lifestyle
+    currProf['text'] += "Lifestyle: "
+    for lf_prefix, lf_data in profile["lifestyle"].items():
+        currProf['text'] += lf_prefix + ": " + lf_data + ", "
     currProf['text'] += ". "
+
+    # Interests
+    currProf['text'] += "Interests: "
+    for inter in profile["interests"]:
+        currProf['text'] += inter +  ", "
+    currProf['text'] += ". "
+
+    # Anthem
+    if profile['anthem'] != None:
+        currProf['text'] += "Anthem: " + profile['anthem']
 
 # Append image paths
 image_path = folder_path + "images"
 
 IMAGE_AMOUNT = len(os.listdir(image_path))
 
-for profile in data:
-    currProf = profiles[profile["id"]]
+for profile_id in data:
+    currProf = profiles[profile_id]
     
-    image_folder = image_path + "/" + profile["id"] 
+    image_folder = image_path + "/" + profile_id 
     for i in range(IMAGE_AMOUNT):
         try:
             inputs_caption = processor(images=Image.open(image_folder + "/image_" + i + ".jpg").convert("RGB"), return_tensors="pt").to(device, dtype=dtype)
