@@ -18,4 +18,4 @@ else
   echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
 fi
 uv sync
-uv run python -m blip2.test_instructing_rizz
+uv run python -m blip2.trainer.py
