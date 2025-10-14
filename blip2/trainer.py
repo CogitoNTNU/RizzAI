@@ -114,10 +114,10 @@ def to_parsable_data(input_path):
 
     IMAGE_AMOUNT = len(os.listdir(image_path))
 
-    for profile in data:
-        currProf = profiles[profile["id"]]
+    for profile_id in data:
+        currProf = profiles[profile_id]
         
-        image_folder = image_path + "/" + profile["id"] 
+        image_folder = image_path + "/" + profile_id
         for i in range(IMAGE_AMOUNT):
             try:
                 currProf['images'].append(Image.open(image_folder + "/image_" + i + ".jpg").convert("RGB"))
