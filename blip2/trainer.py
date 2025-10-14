@@ -60,6 +60,9 @@ def to_parsable_data(input_path):
     with open(input_path, "r") as f:
         data = json.load(f)
     
+    print(f"Keys: {data.keys()}")
+    print(f"Items: {data.items()}")
+
     # with open(supervised_path, "r") as f:
     #     corrective_data = json.load(f)
 
@@ -172,4 +175,4 @@ def to_parsable_data(input_path):
 
 #<--------------------------------
 
-output_data = to_parsable_data("../data_collection/profiles/text_data.json")
+output_data = to_parsable_data("./data_collection/profiles/text_data.json")
