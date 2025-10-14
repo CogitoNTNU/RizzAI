@@ -66,34 +66,44 @@ def to_parsable_data(input_path, supervised_path):
     profiles = {}
 
     for profile in data:
-        profiles[profile["id"]] = {
+        profiles[profile] = {
             "text": "",
             "images": [],
             "image_prompt_list": []
         }
 
     for profile in data:
-        currProf = profiles[profile["id"]]
+        currProf = profiles[profile]
 
         currProf['text'] += "Name: " + profile["name"] + ". "
-        currProf['text'] += "Age: " + profile["age"] + ". "
-        currProf['text'] += "Lives In: " + profile["lives_in"] + ". "
         currProf['text'] += "About Me: " + profile["about_me"] + ". "
         
+        # Essentials
         currProf['text'] += "Essentials: "
         for ess in profile["essentials"]:
             currProf['text'] += ess + ","
         currProf['text'] += ". "
 
-        currProf['text'] += "Lifestyle: "
-        for lf in profile["lifestyle"]:
-            currProf['text'] += lf + ","
+        # Basics
+        currProf['text'] += "Basics: "
+        for bas_prefix, bas_data in profile['basics'].items():
+            currProf['text'] += bas_prefix + ": " + bas_data + ", "
         currProf['text'] += ". "
 
-        currProf['text'] += "Interests: "
-        for interest in profile["interests"]:
-            currProf['text'] += interest + ","
+        # Lifestyle
+        currProf['text'] += "Lifestyle: "
+        for lf_prefix, lf_data in profile["lifestyle"].items():
+            currProf['text'] += lf_prefix + ": " + lf_data + ", "
         currProf['text'] += ". "
+
+        # Interests
+        currProf['text'] += "Interests: "
+        for int_prefix, int_data in profile["interests"].items():
+            currProf['text'] += int_prefix + ": " + int_data + ", "
+        currProf['text'] += ". "
+
+        # Anthem
+        currProf['text'] += "Anthen: " + profile['anthem']
     
     # Append image paths
     image_path = input_path + "/../images"
@@ -125,39 +135,40 @@ def to_parsable_data(input_path, supervised_path):
 
 #Define set and run training loop ---------->
 # Freeze vision encoder
-for param in model.vision_model.parameters():
-    param.requires_grad = False
+# for param in model.vision_model.parameters():
+#     param.requires_grad = False
 
-if not os.path.exists("./results"):
-    os.mkdir("./results")
+# if not os.path.exists("./results"):
+#     os.mkdir("./results")
 
-if not os.path.exists("./logs"):
-    os.mkdir("./logs")
+# if not os.path.exists("./logs"):
+#     os.mkdir("./logs")
 
-training_args = TrainingArguments(
-    output_dir='./results', # TODO: Add result directory
-    per_device_train_batch_size=8,
-    num_train_epochs=3,
-    learning_rate=5e-5,
-    evaluation_strategy='epoch',
-    save_strategy='epoch',
-    logging_dir='./logs', #TODO: Add log directory
-    fp16=True
-)
+# training_args = TrainingArguments(
+#     output_dir='./results', # TODO: Add result directory
+#     per_device_train_batch_size=8,
+#     num_train_epochs=3,
+#     learning_rate=5e-5,
+#     evaluation_strategy='epoch',
+#     save_strategy='epoch',
+#     logging_dir='./logs', #TODO: Add log directory
+#     fp16=True
+# )
 
  
-ddataset = Dataset.from_dict(to_parsable_data("string to json with data", "string to json with correction"))
-split_dataset = ddataset.train_test_split(test_size=0.5, seed=42)
-train_dataset, valid_dataset = split_dataset["train"], split_dataset["test"]
+# ddataset = Dataset.from_dict(to_parsable_data("string to json with data", "string to json with correction"))
+# split_dataset = ddataset.train_test_split(test_size=0.5, seed=42)
+# train_dataset, valid_dataset = split_dataset["train"], split_dataset["test"]
 
-trainer = Trainer(
-    model=model,
-    args=training_args,
-    train_dataset=train_dataset, 
-    eval_dataset=valid_dataset, 
-    tokenizer=processor.tokenizer
-)
+# trainer = Trainer(
+#     model=model,
+#     args=training_args,
+#     train_dataset=train_dataset, 
+#     eval_dataset=valid_dataset, 
+#     tokenizer=processor.tokenizer
+# )
 
-trainer.train()
+# trainer.train()
 
 #<--------------------------------
+
