@@ -9,6 +9,10 @@ from transformers import (
     Blip2Processor,
 )
 import json
+import ollama
+
+
+    
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using device: {device}")
@@ -78,6 +82,22 @@ for profile in data:
             continue
 
 #ollama
+def data_to_prompt(data):
+    profile_info = "This is a description of her tinder images:"
+    profile_desc = data["image_descriptions"]
+    for pd in profile_desc:
+        profile_info += pd
+    
+    return profile_info + ". And here is her profile info:" + data["text"] + ". Give me the perfect opening line to this woman"
+
+def create_first_message(data, user_id, l_model):
+    """
+    Create the first message for a user based on provided data.
+
+    Args:
+        data (dict): A dictionary containing message details.
+        user_id (str): The ID of the user."""
+    return ollama.chat(l_model, messages=[{'role': 'user', 'content': data_to_prompt(data)}])
 
 for pid in profiles:
-    ollama.generate(pid)
+    create_first_message(pid)
