@@ -79,8 +79,10 @@ def to_parsable_data(input_path):
         currProf = profiles[profile_id]
         profile = data[profile_id]
 
-        currProf['text'] += "Name: " + profile["name"] + ". "
-        currProf['text'] += "About Me: " + profile["about_me"] + ". "
+        if profile['name'] != None:
+            currProf['text'] += "Name: " + profile["name"] + ". "
+        if profile['about_me'] != None:
+            currProf['text'] += "About Me: " + profile["about_me"] + ". "
         
         # Essentials
         currProf['text'] += "Essentials: "
