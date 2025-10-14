@@ -38,7 +38,7 @@ qformer_config = Blip2QFormerConfig()
 vision_config = Blip2VisionConfig() #Image encoder Keep this 
 text_config = OPTConfig() #Language model - Keep this
 
-configuration = Blip2Config.from_text_vision_configs(vision_config, qformer_config, text_config)#Blip2Config()
+configuration = Blip2Config.from_text_vision_configs(vision_config, qformer_config, text_config) #Blip2Config()
 #<------------------------------
 
 
