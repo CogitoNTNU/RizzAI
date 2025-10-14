@@ -102,7 +102,7 @@ def to_parsable_data(input_path):
 
         # Interests
         currProf['text'] += "Interests: "
-        for inter in profile["interests"].items():
+        for inter in profile["interests"]:
             currProf['text'] += inter +  ", "
         currProf['text'] += ". "
 
