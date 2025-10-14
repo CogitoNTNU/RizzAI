@@ -61,7 +61,7 @@ def to_parsable_data(input_path):
         data = json.load(f)
     
     print(f"Keys: {data.keys()}")
-    print(f"Items: {data.items()}")
+    print(f"Items: {data.items()['0']}")
 
     # with open(supervised_path, "r") as f:
     #     corrective_data = json.load(f)
