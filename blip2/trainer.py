@@ -59,9 +59,6 @@ def to_parsable_data(input_path):
     """
     with open(input_path, "r") as f:
         data = json.load(f)
-    
-    print(f"Keys: {data.keys()}")
-    print(f"Items: {data['0']}")
 
     # with open(supervised_path, "r") as f:
     #     corrective_data = json.load(f)
@@ -113,7 +110,7 @@ def to_parsable_data(input_path):
             currProf['text'] += "Anthem: " + profile['anthem']
     
     # Append image paths
-    image_path = input_path + "/../images"
+    image_path = input_path.replace("text_data.json", "") + "images"
 
     IMAGE_AMOUNT = len(os.listdir(image_path))
 
