@@ -13,5 +13,4 @@
 cd rizzai
 cd RizzAI
 uv sync
-git pull origin master
-python -m blip2.generate_annontations
+uv run python -m blip2.generate_annontations
