@@ -10,7 +10,5 @@
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks-per-node=1 #CPU cores
 
-cd rizzai
-cd RizzAI
 uv sync
 uv run python -m blip2.generate_annontations
