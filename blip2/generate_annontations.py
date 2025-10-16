@@ -41,6 +41,37 @@ for profile in data:
         "image_descriptions": [],
     }
 
+def ask_question(images, question: str) -> str:
+    inputs = processor(images=images, question=question, return_tensors="pt").to(device)
+
+    out = model.generate(**inputs, do_sample=False, num_beams=5, max_length=196, min_length=1,
+        top_p=1.0,
+        repetition_penalty=5,
+        length_penalty=1.0,
+        temperature=1,
+    )
+    answer = processor.batch_decode(out, skip_special_tokens=True)[0].strip()
+
+    return answer
+
+def ask_question_no_img(question):
+    inputs = processor(question=question, return_tensors="pt").to(device)
+    out = model.generate(
+        **inputs,
+        do_sample=False,
+        num_beams=5,
+        max_length=196,
+        min_length=1,
+        top_p=1.0,
+        repetition_penalty=5,
+        length_penalty=1.0,
+        temperature=1,
+    )
+    answer = processor.batch_decode(out, skip_special_tokens=True)[0].strip()
+
+    return answer
+
+
 for profile_id in data:
     currProf = profiles[profile_id]
     profile = data[profile_id]
@@ -83,17 +114,27 @@ image_path = folder_path + "images"
 
 IMAGE_AMOUNT = len(os.listdir(image_path))
 
+prof_img_dict = {}
+image_description_dict={} #dictionnary containing every image descriptions for each profilepir
 for profile_id in data:
     currProf = profiles[profile_id]
-    
+    prof_img_dict[profile_id] = []
     image_folder = image_path + "/" + profile_id 
+    image_description_dict[profile_id]=[]
     for i in range(IMAGE_AMOUNT):
         try:
-            inputs_caption = processor(images=Image.open(image_folder + "/image_" + i + ".jpg").convert("RGB"), return_tensors="pt").to(device, dtype=dtype)
+            img = Image.open(image_folder + "/image_" + i + ".jpg").convert("RGB")
+            prof_img_dict[profile_id].append(img)
+            inputs_caption = processor(images=img, return_tensors="pt").to(device, dtype=dtype)
             generated_ids_caption = model.generate(**inputs_caption, max_new_tokens=20)
-            currProf["image_descriptions"].append(processor.batch_decode(generated_ids_caption, skip_special_tokens=True)[0].strip())
-        finally:
+            image_description = processor.batch_decode(generated_ids_caption, skip_special_tokens=True)[0].strip()
+            image_description_dict[profile_id].append(image_description) 
+            currProf["image_descriptions"].append(image_description)
+        except:
             continue
+
+
+
 
 #ollama
 def data_to_prompt(data):
@@ -116,4 +157,4 @@ def create_first_message(data, l_model):
 
 annontation_set = {}
 for pid in profiles:
-    annontation_set[pid] = {"chosen": create_first_message(profiles[pid], "llama3.1"), "rejected": use just the fucking lm}
+    annontation_set[pid] = {"chosen": create_first_message(profiles[pid], "llama3.1"), "rejected": ask_question_no_img(image_description_dict[pid])}

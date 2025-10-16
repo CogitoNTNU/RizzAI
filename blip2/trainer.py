@@ -149,13 +149,13 @@ if not os.path.exists("./logs"):
     os.mkdir("./logs")
 
 training_args = TrainingArguments(
-    output_dir='./results', # TODO: Add result directory
+    output_dir='./results',
     per_device_train_batch_size=8,
     num_train_epochs=3,
     learning_rate=5e-5,
     evaluation_strategy='epoch',
     save_strategy='epoch',
-    logging_dir='./logs', #TODO: Add log directory
+    logging_dir='./logs', 
     fp16=True
 )
 
