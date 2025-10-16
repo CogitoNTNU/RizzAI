@@ -8,6 +8,7 @@
 #SBATCH --time=1:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:1
+#SBATCH --constraint="a100" # GPU type and number of GPUs.
 #SBATCH --ntasks-per-node=1 #CPU cores
 
 cd
