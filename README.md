@@ -5,6 +5,12 @@
 
 2. Install pre-commit hooks: `uv run pre-commit install`
 
+3. Install Ollama on your local machine from [https://ollama.com/download](https://ollama.com/download) and follow the instructions to set it up.
+
+4. Run `uv run ollama start` to start the Ollama server.
+
+5. Make sure you have access to the Rizzler server. See the section "How to Access the Server" below.
+
 ## Linting, Formatting and Type Checking
 - To do all tasks (lint, format, mypy): `uv run tools.py l`
 - To lint only: `uv run tools.py lint`
