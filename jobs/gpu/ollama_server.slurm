@@ -13,5 +13,17 @@
 
 module load ollama/0.6.0-GCCcore-13.3.0-CUDA-12.6.0
 export OLLAMA_HOST=0.0.0.0
-ollama serve
+ollama serve > /dev/null 2>&1 &
+echo "going to sleep"
+sleep 60
+echo "woke up"
+cd
+dir
+cd rizzai
+dir
+cd RizzAI
+dir
+module load ollama/0.6.0-GCCcore-13.3.0-CUDA-12.6.0
+uv sync
+uv run python -m blip2.generate_annontations
 
