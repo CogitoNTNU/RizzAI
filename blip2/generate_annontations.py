@@ -179,7 +179,7 @@ def create_first_message(data, l_model):
 annontation_set = {}
 for pid in profiles:
     annontation_set[pid] = {
-        "chosen": create_first_message(profiles[pid], "llama3.2:1b").message.content,
+        "chosen": create_first_message(profiles[pid], "llama2-uncensored:7b").message.content,
         # "rejected": ask_question_no_img(image_description_dict[pid]),
         "rejected": "I want to take you to the woods. 😉",
     }
