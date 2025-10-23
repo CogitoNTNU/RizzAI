@@ -153,16 +153,16 @@ for profile_id in data:
 
 # ollama
 def data_to_prompt(data):
-    profile_info = "This is a description of her tinder images:"
+    profile_info = "This is a description of my images:"
     profile_desc = data["image_descriptions"]
     for pd in profile_desc:
         profile_info += pd
 
     return (
         profile_info
-        + ". And here is her profile info:"
+        + ". And here is my profile info:"
         + data["text"]
-        + ". Give me the perfect opening line to this woman"
+        + ". Give me the perfect opening line to charm me, i am a woman btw"
     )
 
 
@@ -173,9 +173,7 @@ def create_first_message(data, l_model):
         data (dict): A dictionary containing message details.
         user_id (str): The ID of the user.
     """
-    return ollama.chat(
-        l_model, messages=[{"role": "user", "content": data_to_prompt(data)}]
-    )
+    return ollama.chat(l_model, messages=[{"role": "user", "content": data_to_prompt(data)}])
 
 
 annontation_set = {}
