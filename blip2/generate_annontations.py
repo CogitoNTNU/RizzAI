@@ -162,7 +162,7 @@ def data_to_prompt(data):
         profile_info
         + ". And here is my profile info:"
         + data["text"]
-        + ". Give me only one perfect opening line to charm me, i am a woman btw"
+        + ". Give me only one perfect opening line in english to charm me, i am a woman btw"
     )
 
 
