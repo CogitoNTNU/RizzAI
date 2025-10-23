@@ -11,6 +11,8 @@
 #SBATCH --gres=gpu:1
 #SBATCH --constraint="a100" # GPU type and number of GPUs.
 
+git pull
+
 module load ollama/0.6.0-GCCcore-13.3.0-CUDA-12.6.0
 export OLLAMA_HOST=0.0.0.0
 ollama serve > /dev/null 2>&1 &
