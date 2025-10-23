@@ -1,6 +1,9 @@
-#ollama pls save me, generate perfect opening line but also it has to use the vision part to get description of the pictures 
-#can use the models current output as rejected "lines"
+# ollama pls save me, generate perfect opening line but also it has to use the vision part to get description of the pictures
+# can use the models current output as rejected "lines"
+import json
 import os
+
+import ollama
 import torch
 from PIL import Image
 from transformers import (
@@ -8,15 +11,14 @@ from transformers import (
     Blip2ForConditionalGeneration,
     Blip2Processor,
 )
-import json
-import ollama
+
 
 print(torch.__version__)
 print(torch.cuda.get_arch_list())
 print(torch.cuda.get_device_name(0))
 print(torch.cuda.current_device())
 print(torch.cuda.is_available())
-    
+
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using device: {device}")
@@ -34,7 +36,7 @@ model = Blip2ForConditionalGeneration.from_pretrained(
 
 folder_path = "/cluster/home/kristiac/rizzai/RizzAI/data_collection/profiles/"
 json_file = "text_data.json"
-with open(str(folder_path+json_file), "r") as f:
+with open(str(folder_path + json_file)) as f:
     data = json.load(f)
 
 profiles = {}
@@ -45,10 +47,16 @@ for profile in data:
         "image_descriptions": [],
     }
 
-def ask_question(images, question: str) -> str:
-    inputs = processor(images=images, question=question, return_tensors="pt").to(device)
 
-    out = model.generate(**inputs, do_sample=False, num_beams=5, max_length=196, min_length=1,
+def ask_question(images, question: str) -> str:
+    inputs = processor(images=images, text=question, return_tensors="pt").to(device)
+
+    out = model.generate(
+        **inputs,
+        do_sample=False,
+        num_beams=5,
+        max_length=196,
+        min_length=1,
         top_p=1.0,
         repetition_penalty=5,
         length_penalty=1.0,
@@ -58,8 +66,9 @@ def ask_question(images, question: str) -> str:
 
     return answer
 
-def ask_question_no_img(question):
-    inputs = processor(question=question, return_tensors="pt").to(device)
+
+def ask_question_no_img(question: str) -> str:
+    inputs = processor(text=question, return_tensors="pt").to(device)
     out = model.generate(
         **inputs,
         do_sample=False,
@@ -80,38 +89,38 @@ for profile_id in data:
     currProf = profiles[profile_id]
     profile = data[profile_id]
 
-    if profile['name'] != None:
-        currProf['text'] += "Name: " + profile["name"] + ". "
-    if profile['about_me'] != None:
-        currProf['text'] += "About Me: " + profile["about_me"] + ". "
-    
+    if profile["name"] != None:
+        currProf["text"] += "Name: " + profile["name"] + ". "
+    if profile["about_me"] != None:
+        currProf["text"] += "About Me: " + profile["about_me"] + ". "
+
     # Essentials
-    currProf['text'] += "Essentials: "
+    currProf["text"] += "Essentials: "
     for ess in profile["essentials"]:
-        currProf['text'] += ess + ","
-    currProf['text'] += ". "
+        currProf["text"] += ess + ","
+    currProf["text"] += ". "
 
     # Basics
-    currProf['text'] += "Basics: "
-    for bas_prefix, bas_data in profile['basics'].items():
-        currProf['text'] += bas_prefix + ": " + bas_data + ", "
-    currProf['text'] += ". "
+    currProf["text"] += "Basics: "
+    for bas_prefix, bas_data in profile["basics"].items():
+        currProf["text"] += bas_prefix + ": " + bas_data + ", "
+    currProf["text"] += ". "
 
     # Lifestyle
-    currProf['text'] += "Lifestyle: "
+    currProf["text"] += "Lifestyle: "
     for lf_prefix, lf_data in profile["lifestyle"].items():
-        currProf['text'] += lf_prefix + ": " + lf_data + ", "
-    currProf['text'] += ". "
+        currProf["text"] += lf_prefix + ": " + lf_data + ", "
+    currProf["text"] += ". "
 
     # Interests
-    currProf['text'] += "Interests: "
+    currProf["text"] += "Interests: "
     for inter in profile["interests"]:
-        currProf['text'] += inter +  ", "
-    currProf['text'] += ". "
+        currProf["text"] += inter + ", "
+    currProf["text"] += ". "
 
     # Anthem
-    if profile['anthem'] != None:
-        currProf['text'] += "Anthem: " + profile['anthem']
+    if profile["anthem"] != None:
+        currProf["text"] += "Anthem: " + profile["anthem"]
 
 # Append image paths
 image_path = folder_path + "images"
@@ -119,46 +128,60 @@ image_path = folder_path + "images"
 IMAGE_AMOUNT = len(os.listdir(image_path))
 
 prof_img_dict = {}
-image_description_dict={} #dictionnary containing every image descriptions for each profilepir
+image_description_dict = {}  # dictionnary containing every image descriptions for each profilepir
 for profile_id in data:
     currProf = profiles[profile_id]
     prof_img_dict[profile_id] = []
-    image_folder = image_path + "/" + profile_id 
-    image_description_dict[profile_id]=[]
+    image_folder = image_path + "/" + profile_id
+    image_description_dict[profile_id] = []
     for i in range(IMAGE_AMOUNT):
         try:
             img = Image.open(image_folder + "/image_" + i + ".jpg").convert("RGB")
             prof_img_dict[profile_id].append(img)
-            inputs_caption = processor(images=img, return_tensors="pt").to(device, dtype=dtype)
+            inputs_caption = processor(images=img, return_tensors="pt").to(
+                device, dtype=dtype
+            )
             generated_ids_caption = model.generate(**inputs_caption, max_new_tokens=20)
-            image_description = processor.batch_decode(generated_ids_caption, skip_special_tokens=True)[0].strip()
-            image_description_dict[profile_id].append(image_description) 
+            image_description = processor.batch_decode(
+                generated_ids_caption, skip_special_tokens=True
+            )[0].strip()
+            image_description_dict[profile_id].append(image_description)
             currProf["image_descriptions"].append(image_description)
         except:
             continue
 
 
-
-
-#ollama
+# ollama
 def data_to_prompt(data):
     profile_info = "This is a description of her tinder images:"
     profile_desc = data["image_descriptions"]
     for pd in profile_desc:
         profile_info += pd
-    
-    return profile_info + ". And here is her profile info:" + data["text"] + ". Give me the perfect opening line to this woman"
+
+    return (
+        profile_info
+        + ". And here is her profile info:"
+        + data["text"]
+        + ". Give me the perfect opening line to this woman"
+    )
+
 
 def create_first_message(data, l_model):
-    """
-    Create the first message for a user based on provided data.
+    """Create the first message for a user based on provided data.
 
     Args:
         data (dict): A dictionary containing message details.
-        user_id (str): The ID of the user."""
-    return ollama.chat(l_model, messages=[{'role': 'user', 'content': data_to_prompt(data)}])
+        user_id (str): The ID of the user.
+    """
+    return ollama.chat(
+        l_model, messages=[{"role": "user", "content": data_to_prompt(data)}]
+    )
 
 
 annontation_set = {}
 for pid in profiles:
-    annontation_set[pid] = {"chosen": create_first_message(profiles[pid], "llama3.2:1b"), "rejected": ask_question_no_img(image_description_dict[pid])}
+    annontation_set[pid] = {
+        "chosen": create_first_message(profiles[pid], "llama3.2:1b"),
+        "rejected": ask_question_no_img(image_description_dict[pid]),
+    }
+
