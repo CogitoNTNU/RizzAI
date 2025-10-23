@@ -4,6 +4,9 @@ data_collection/profiles/*
 # Job output files
 job_output/
 
+# Fine-tuned models
+models/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
