@@ -188,4 +188,4 @@ for pid in profiles:
 output_path = "./data_collection/profiles/llm_lines_finetune.json"
 os.makedirs(os.path.dirname(output_path), exist_ok=True)
 with open(output_path, "w", encoding="utf-8") as f:
-    json.dump(annontation_set, f)
+    json.dump(annontation_set, f, indent=4)
