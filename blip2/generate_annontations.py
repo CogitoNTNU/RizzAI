@@ -11,7 +11,11 @@ from transformers import (
 import json
 import ollama
 
-
+print(torch.__version__)
+print(torch.cuda.get_arch_list())
+print(torch.cuda.get_device_name(0))
+print(torch.cuda.current_device())
+print(torch.cuda.is_available())
     
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
