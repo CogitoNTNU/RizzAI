@@ -186,4 +186,8 @@ for pid in profiles:
         "rejected": "I want to take you to the woods. 😉",
     }
 
-json.dump(annontation_set, "./data_collection/profiles/llm_lines.json")
+# write JSON to file using a file object
+output_path = "./data_collection/profiles/llm_lines_finetune.json"
+os.makedirs(os.path.dirname(output_path), exist_ok=True)
+with open(output_path, "w", encoding="utf-8") as f:
+    json.dump(annontation_set, f)
