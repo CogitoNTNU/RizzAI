@@ -19,7 +19,7 @@ ollama serve > /dev/null 2>&1 &
 echo "going to sleep"
 sleep 60
 echo "woke up"
-
+ollama pull llama2-uncensored:7b
 module load ollama/0.6.0-GCCcore-13.3.0-CUDA-12.6.0
 uv sync
 uv run python -m blip2.generate_annontations
