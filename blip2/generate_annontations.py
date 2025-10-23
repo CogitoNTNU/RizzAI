@@ -185,3 +185,5 @@ for pid in profiles:
         # "rejected": ask_question_no_img(image_description_dict[pid]),
         "rejected": "I want to take you to the woods. 😉",
     }
+
+json.dump(annontation_set, "./data_collection/profiles/llm_lines.json")
