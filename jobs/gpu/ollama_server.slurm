@@ -9,4 +9,6 @@
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --ntasks-per-node=1 #CPU cores
 
-curl -fsSL https://ollama.com/install.sh | sh
+module load ollama/0.6.0-GCCcore-13.3.0-CUDA-12.6.0
+export OLLAMA_HOST=0.0.0.0
+ollama serve
