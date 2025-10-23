@@ -182,6 +182,8 @@ annontation_set = {}
 for pid in profiles:
     annontation_set[pid] = {
         "chosen": create_first_message(profiles[pid], "llama3.2:1b"),
-        "rejected": ask_question_no_img(image_description_dict[pid]),
+        # "rejected": ask_question_no_img(image_description_dict[pid]),
+        "rejected": "I want to take you to the woods. 😉",
     }
+
 json.dump(annontation_set, "./data_collection/profiles/llm_lines.json")
