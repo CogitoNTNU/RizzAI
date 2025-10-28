@@ -413,7 +413,7 @@ def save_annotations_to_file(annotation_set: dict, output_path: str) -> None:
     """
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(annotation_set, f, indent=4)
+        json.dump(annotation_set, f, indent=4, ensure_ascii=False)
     print(f"Annotations saved to {output_path}")
 
 
