@@ -282,7 +282,7 @@ def create_first_message(data, l_model):
     """
     return ollama.chat(l_model, messages=[{"role": "user", "content": data_to_prompt(data)}])
 
-
+print("PLS IKKE VÆR TOM:", prof_img_dict)
 annontation_set = {}
 print("\nGenerating annotations with multi-image embeddings...")
 for pid in profiles:
