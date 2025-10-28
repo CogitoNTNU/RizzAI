@@ -1,5 +1,7 @@
-# ollama pls save me, generate perfect opening line but also it has to use the vision part to get description of the pictures
-# can use the models current output as rejected "lines"
+# Generate annotations for fine-tuning using BLIP-2 with multi-image support
+# This script extracts visual embeddings from multiple images per profile and concatenates them
+# before generating text, allowing the model to consider all profile images simultaneously.
+# The concatenated embeddings are passed through the Q-Former and language model for generation.
 import json
 import os
 
@@ -48,7 +50,112 @@ for profile in data:
     }
 
 
+def extract_image_embeddings(image):
+    """Extract vision embeddings for a single image.
+    
+    Args:
+        image: PIL Image
+        
+    Returns:
+        Image embeddings tensor
+    """
+    pixel_values = processor(images=image, return_tensors="pt").pixel_values.to(device, dtype=dtype)
+    
+    with torch.no_grad():
+        # Get vision model outputs (image features)
+        vision_outputs = model.vision_model(pixel_values, return_dict=True)
+        image_embeds = vision_outputs[0]  # [batch, seq_len, hidden_size]
+        
+        # Apply vision projection to match Q-Former input size
+        image_embeds = model.vision_model.post_layernorm(image_embeds)
+        
+    return image_embeds
+
+
+def generate_with_multiple_images(images, question: str) -> str:
+    """Generate text using concatenated embeddings from multiple images.
+    
+    Args:
+        images: List of PIL Images
+        question: Text prompt/question
+        
+    Returns:
+        Generated text answer
+    """
+    if not images:
+        return ask_question_no_img(question)
+    
+    # Extract embeddings for each image
+    all_image_embeds = []
+    for img in images:
+        img_embeds = extract_image_embeddings(img)
+        all_image_embeds.append(img_embeds)
+    
+    # Concatenate image embeddings along sequence dimension
+    # Shape: [1, total_seq_len, hidden_size]
+    concatenated_embeds = torch.cat(all_image_embeds, dim=1)
+    
+    # Process text input
+    text_inputs = processor(text=question, return_tensors="pt").to(device)
+    
+    # Forward pass through Q-Former with concatenated image embeddings
+    with torch.no_grad():
+        # Get Q-Former outputs with concatenated visual features
+        image_attention_mask = torch.ones(
+            concatenated_embeds.size()[:-1], dtype=torch.long, device=device
+        )
+        
+        query_tokens = model.query_tokens.expand(concatenated_embeds.shape[0], -1, -1)
+        query_outputs = model.qformer(
+            query_embeds=query_tokens,
+            encoder_hidden_states=concatenated_embeds,
+            encoder_attention_mask=image_attention_mask,
+            return_dict=True,
+        )
+        query_output = query_outputs.last_hidden_state
+        
+        # Project to language model dimension
+        language_model_inputs = model.language_projection(query_output)
+        language_attention_mask = torch.ones(
+            language_model_inputs.size()[:-1], dtype=torch.long, device=device
+        )
+        
+        # Prepare language model inputs
+        inputs_embeds = model.language_model.get_input_embeddings()(
+            text_inputs.input_ids
+        )
+        inputs_embeds = torch.cat([language_model_inputs, inputs_embeds], dim=1)
+        
+        attention_mask = torch.cat(
+            [language_attention_mask, text_inputs.attention_mask], dim=1
+        )
+        
+        # Generate
+        outputs = model.language_model.generate(
+            inputs_embeds=inputs_embeds,
+            attention_mask=attention_mask,
+            do_sample=False,
+            num_beams=5,
+            max_length=196,
+            min_length=1,
+            top_p=1.0,
+            repetition_penalty=1.5,
+            length_penalty=1.0,
+            temperature=1.0,
+            pad_token_id=processor.tokenizer.pad_token_id,
+            eos_token_id=processor.tokenizer.eos_token_id,
+        )
+    
+    answer = processor.batch_decode(outputs, skip_special_tokens=True)[0].strip()
+    return answer
+
+
 def ask_question(images, question: str) -> str:
+    """Single image question answering (kept for backwards compatibility)."""
+    if isinstance(images, list):
+        # If multiple images provided, use the new multi-image approach
+        return generate_with_multiple_images(images, question)
+    
     inputs = processor(images=images, text=question, return_tensors="pt").to(device)
 
     out = model.generate(
@@ -171,18 +278,38 @@ def create_first_message(data, l_model):
 
     Args:
         data (dict): A dictionary containing message details.
-        user_id (str): The ID of the user.
+        l_model (str): The language model name to use.
     """
     return ollama.chat(l_model, messages=[{"role": "user", "content": data_to_prompt(data)}])
 
 
 annontation_set = {}
+print("\nGenerating annotations with multi-image embeddings...")
 for pid in profiles:
+    print(f"Processing profile {pid}...")
+    
+    # Get images for this profile
+    profile_images = prof_img_dict.get(pid, [])
+    
+    # Generate "rejected" response using multi-image BLIP-2 with concatenated embeddings
+    if profile_images:
+        question = f"Question: Based on these images and the profile: {profiles[pid]['text']}, what is a good opening line? Answer:"
+        rejected_line = generate_with_multiple_images(profile_images, question)
+    else:
+        rejected_line = "I want to take you to the woods. 😉"
+    
+    # Generate "chosen" response using Ollama with image descriptions
+    chosen_line = create_first_message(profiles[pid], "llama2-uncensored:7b").message.content
+    
     annontation_set[pid] = {
-        "chosen": create_first_message(profiles[pid], "llama2-uncensored:7b").message.content,
-        # "rejected": ask_question_no_img(image_description_dict[pid]),
-        "rejected": "I want to take you to the woods. 😉",
+        "chosen": chosen_line,
+        "rejected": rejected_line,
+        "num_images": len(profile_images),
     }
+    
+    print(f"  - Images used: {len(profile_images)}")
+    print(f"  - Chosen: {chosen_line[:50]}...")
+    print(f"  - Rejected: {rejected_line[:50]}...")
 
 # write JSON to file using a file object
 output_path = "./data_collection/profiles/llm_lines_finetune.json"
