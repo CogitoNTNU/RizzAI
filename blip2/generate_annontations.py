@@ -265,11 +265,11 @@ def data_to_prompt(data):
     for pd in profile_desc:
         profile_info += pd
 
-    return (
+    return ("My profile description" +
         profile_info
-        + ". And here is my profile info:"
+        + ". And here is a description of my images:"
         + data["text"]
-        + ". Give me only one perfect opening line in english to charm me, i am a woman btw"
+        + ". Answer with only one sentence, one perfect opening line in english to charm me"
     )
 
 
