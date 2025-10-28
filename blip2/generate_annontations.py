@@ -244,7 +244,9 @@ for profile_id in data:
     IMAGE_AMOUNT = len(os.listdir(image_folder))
     for i in range(IMAGE_AMOUNT):
         try:
+            print("path:", image_folder + "/image_" + i + ".jpg", " img amount:", IMAGE_AMOUNT)
             img = Image.open(image_folder + "/image_" + i + ".jpg").convert("RGB")
+            print(img)
             prof_img_dict[profile_id].append(img)
             inputs_caption = processor(images=img, return_tensors="pt").to(
                 device, dtype=dtype
