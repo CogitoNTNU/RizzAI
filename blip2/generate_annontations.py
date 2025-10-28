@@ -232,7 +232,7 @@ for profile_id in data:
 # Append image paths
 image_path = folder_path + "images"
 
-IMAGE_AMOUNT = len(os.listdir(image_path))
+
 
 prof_img_dict = {}
 image_description_dict = {}  # dictionnary containing every image descriptions for each profilepir
@@ -241,6 +241,7 @@ for profile_id in data:
     prof_img_dict[profile_id] = []
     image_folder = image_path + "/" + profile_id
     image_description_dict[profile_id] = []
+    IMAGE_AMOUNT = len(os.listdir(image_folder))
     for i in range(IMAGE_AMOUNT):
         try:
             img = Image.open(image_folder + "/image_" + i + ".jpg").convert("RGB")
@@ -255,6 +256,7 @@ for profile_id in data:
             image_description_dict[profile_id].append(image_description)
             currProf["image_descriptions"].append(image_description)
         except:
+            print("error has occured")
             continue
 
 
