@@ -185,15 +185,6 @@ def extract_image_embeddings(image: Image.Image) -> torch.Tensor:
 
 
 def generate_with_multiple_images(images: list[Image.Image], question: str) -> str:
-    """Generate text using concatenated embeddings from multiple images.
-
-    Args:
-        images: List of PIL Images
-        question: Text prompt/question
-
-    Returns:
-        Generated text answer
-    """
     if not images:
         return ask_question_no_img(question)
 
@@ -204,19 +195,16 @@ def generate_with_multiple_images(images: list[Image.Image], question: str) -> s
         all_image_embeds.append(img_embeds)
 
     # Concatenate image embeddings along sequence dimension
-    # Shape: [1, total_seq_len, hidden_size]
     concatenated_embeds = torch.cat(all_image_embeds, dim=1)
 
     # Process text input
     text_inputs = processor(text=question, return_tensors="pt").to(device)
 
-    # Forward pass through Q-Former with concatenated image embeddings
     with torch.no_grad():
         # Get Q-Former outputs with concatenated visual features
         image_attention_mask = torch.ones(
             concatenated_embeds.size()[:-1], dtype=torch.long, device=device
         )
-
         query_tokens = model.query_tokens.expand(concatenated_embeds.shape[0], -1, -1)
         query_outputs = model.qformer(
             query_embeds=query_tokens,
@@ -226,23 +214,29 @@ def generate_with_multiple_images(images: list[Image.Image], question: str) -> s
         )
         query_output = query_outputs.last_hidden_state
 
-        # Project to language model dimension
-        language_model_inputs = model.language_projection(query_output)
-        language_attention_mask = torch.ones(
-            language_model_inputs.size()[:-1], dtype=torch.long, device=device
-        )
+        # Project to language-model dimension
+        lm_inputs_from_img = model.language_projection(query_output)
+        
+        lm_embed_weight = model.language_model.get_input_embeddings().weight
+        lm_dtype = lm_embed_weight.dtype  # the LM’s expected dtype (Float or Half)
 
-        # Prepare language model inputs
-        inputs_embeds = model.language_model.get_input_embeddings()(
+        lm_inputs_from_img = lm_inputs_from_img.to(lm_dtype)
+        text_token_embeds = model.language_model.get_input_embeddings()(
             text_inputs.input_ids
-        )
-        inputs_embeds = torch.cat([language_model_inputs, inputs_embeds], dim=1)
+        ).to(lm_dtype)
 
+        # Concatenate image embeddings + text embeddings
+        inputs_embeds = torch.cat([lm_inputs_from_img, text_token_embeds], dim=1)
+
+        # Build attention masks
+        language_attention_mask = torch.ones(
+            lm_inputs_from_img.size()[:-1], dtype=torch.long, device=device
+        )
         attention_mask = torch.cat(
             [language_attention_mask, text_inputs.attention_mask], dim=1
         )
 
-        # Generate
+        # Generate from LM
         outputs = model.language_model.generate(
             inputs_embeds=inputs_embeds,
             attention_mask=attention_mask,
@@ -261,37 +255,6 @@ def generate_with_multiple_images(images: list[Image.Image], question: str) -> s
     answer = processor.batch_decode(outputs, skip_special_tokens=True)[0].strip()
     return answer
 
-
-def ask_question(images: Image.Image | list[Image.Image], question: str) -> str:
-    """Single image question answering (kept for backwards compatibility).
-
-    Args:
-        images: PIL Image or list of PIL Images
-        question: Text prompt/question
-
-    Returns:
-        Generated text answer
-    """
-    if isinstance(images, list):
-        # If multiple images provided, use the new multi-image approach
-        return generate_with_multiple_images(images, question)
-
-    inputs = processor(images=images, text=question, return_tensors="pt").to(device)
-
-    out = model.generate(
-        **inputs,
-        do_sample=False,
-        num_beams=5,
-        max_length=196,
-        min_length=1,
-        top_p=1.0,
-        repetition_penalty=5,
-        length_penalty=1.0,
-        temperature=1,
-    )
-    answer = processor.batch_decode(out, skip_special_tokens=True)[0].strip()
-
-    return answer
 
 
 def ask_question_no_img(question: str) -> str:
