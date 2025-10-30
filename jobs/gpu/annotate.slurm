@@ -4,7 +4,7 @@
 #SBATCH --mem=50GB # Total memory you need. Most DL jobs should do fine with 64GB.
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
 #SBATCH --job-name=rizzllama # Set this to whatever you want
-#SBATCH --output=/cluster/home/kristiac/rizzai/RizzAI/jobs/gpu/%j_annotate.txt # The output file. NOTE! The output directory (/cluster/home/haakohu/ in this case)  has to exist before you submit the job!
+#SBATCH --output=/cluster/home/kristiac/rizzai/RizzAI/jobs/gpu/output/%j_annotate.txt # The output file. NOTE! The output directory (/cluster/home/haakohu/ in this case)  has to exist before you submit the job!
 #SBATCH --time=2:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --ntasks-per-node=1 #CPU cores
@@ -22,4 +22,4 @@ echo "woke up"
 ollama pull llama2-uncensored:7b
 module load ollama/0.6.0-GCCcore-13.3.0-CUDA-12.6.0
 uv sync
-uv run python -m blip2.generate_annontations
+uv run python -m blip2.generate_annotations
