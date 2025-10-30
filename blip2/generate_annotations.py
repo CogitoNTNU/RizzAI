@@ -143,18 +143,12 @@ def load_profile_images(
             profile_images.append(img)
 
             # Generate image caption
-            inputs_caption = processor(images=img, return_tensors="pt").to(
-                device, dtype=dtype
-            )
+            inputs_caption = processor(images=img, return_tensors="pt").to(device, dtype=dtype)
             generated_ids_caption = model.generate(**inputs_caption, max_new_tokens=20)
-            image_description = processor.batch_decode(
-                generated_ids_caption, skip_special_tokens=True
-            )[0].strip()
+            image_description = processor.batch_decode(generated_ids_caption, skip_special_tokens=True)[0].strip()
             profiles[profile_id]["image_descriptions"].append(image_description)
         except Exception as e:
-            print(
-                f"  Warning: Could not load image {image_i.name} for profile {profile_id}: {e}"
-            )
+            print(f"  Warning: Could not load image {image_i.name} for profile {profile_id}: {e}")
             continue
 
     return profile_images
@@ -216,7 +210,7 @@ def generate_with_multiple_images(images: list[Image.Image], question: str) -> s
 
         # Project to language-model dimension
         lm_inputs_from_img = model.language_projection(query_output)
-        
+
         lm_embed_weight = model.language_model.get_input_embeddings().weight
         lm_dtype = lm_embed_weight.dtype  # the LM’s expected dtype (Float or Half)
 
@@ -297,10 +291,9 @@ def data_to_prompt(profile_data: dict) -> str:
     for pd in profile_desc:
         profile_info += pd
 
-    return ("My profile description" +
-        profile_info
-        + ". And here is a description of my images:"
-        + data["text"]
+    return ("My profile description:" 
+        + profile_data["text"]
+        + profile_info
         + ". Answer with only one sentence, one perfect opening line in english to charm me"
     )
 
@@ -315,16 +308,11 @@ def create_first_message(profile_data: dict, language_model: str) -> str | None:
     Returns:
         Generated message content
     """
-    response = ollama.chat(
-        language_model,
-        messages=[{"role": "user", "content": data_to_prompt(profile_data)}],
-    )
+    response = ollama.chat(language_model, messages=[{"role": "user", "content": data_to_prompt(profile_data)}],)
     return response.message.content
 
 
-def generate_annotations(
-    profiles: dict, prof_img_dict: dict, language_model: str = "llama2-uncensored:7b"
-) -> dict:
+def generate_annotations(profiles: dict, prof_img_dict: dict, language_model: str = "llama2-uncensored:7b") -> dict:
     """Generate annotations for all profiles with chosen and rejected responses.
 
     Args:
