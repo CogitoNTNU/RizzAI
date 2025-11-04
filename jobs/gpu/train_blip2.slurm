@@ -7,10 +7,12 @@
 #SBATCH --job-name=blip2_finetune
 #SBATCH --time=24:00:00
 #SBATCH --export=ALL # Export all environment variables.
-#SBATCH --output=job_output/%j_blip2_train.out
+#SBATCH --output=job_output/train/%j_blip2_train.out
 
 # # Load required modules
 # module load cuda/11.7
+
+mkdir -p job_output/train
 
 
 # Print some info
