@@ -163,6 +163,7 @@ training_args = TrainingArguments(
     save_strategy="epoch",
     logging_dir="./logs",
     fp16=True,
+    remove_unused_columns=False,
 )
 
 
