@@ -96,25 +96,25 @@ def build_profile_text(data: dict, profile_id: str, profiles: dict) -> None:
     curr_prof["text"] += "Essentials: "
     for ess in profile.get("essentials", []):
         curr_prof["text"] += ess + ","
-    curr_prof["text"] += ". "
+    curr_prof["text"] += ".\n "
 
     # Basics
     curr_prof["text"] += "Basics: "
     for bas_prefix, bas_data in profile.get("basics", {}).items():
         curr_prof["text"] += bas_prefix + ": " + bas_data + ", "
-    curr_prof["text"] += ". "
+    curr_prof["text"] += ".\n "
 
     # Lifestyle
     curr_prof["text"] += "Lifestyle: "
     for lf_prefix, lf_data in profile.get("lifestyle", {}).items():
         curr_prof["text"] += lf_prefix + ": " + lf_data + ", "
-    curr_prof["text"] += ". "
+    curr_prof["text"] += ".\n "
 
     # Interests
     curr_prof["text"] += "Interests: "
     for inter in profile.get("interests", []):
         curr_prof["text"] += inter + ", "
-    curr_prof["text"] += ". "
+    curr_prof["text"] += ".\n "
 
     # Anthem
     if profile.get("anthem") is not None:
@@ -285,7 +285,7 @@ def data_to_prompt(profile_data: dict) -> str:
     Returns:
         Formatted prompt string
     """
-    profile_info = "This is a description of my images:"
+    profile_info = "By answering with only on sentence, please generate the perfect opening line to charm me and spark interest. Try to relate the opening line to who i am! This is a description of my images:"
     profile_desc = profile_data["image_descriptions"]
     for pd in profile_desc:
         profile_info += pd
@@ -293,7 +293,6 @@ def data_to_prompt(profile_data: dict) -> str:
     return ("My profile description:" 
         + profile_data["text"]
         + profile_info
-        + ". Answer with only one sentence, one perfect opening line in english to charm me"
     )
 
 
