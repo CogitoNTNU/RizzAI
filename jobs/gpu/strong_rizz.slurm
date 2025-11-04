@@ -9,6 +9,7 @@
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:1 # GPU type and number of GPUs.
 #SBATCH --output=job_output/%j_gpu_strong_rizz.out
+#SBATCH --constraint="a100"
 
 # Ensure the job_output directory exists
 mkdir -p job_output
