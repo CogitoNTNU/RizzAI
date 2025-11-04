@@ -108,33 +108,48 @@ train_dataset, eval_dataset = split["train"], split["test"]
 
 # 2) Custom data collator to produce model-forward inputs
 class Blip2Collator:
-    def __init__(self, processor):
+    def __init__(self, processor, label_pad_token_id: int = -100):
         self.processor = processor
+        self.label_pad_token_id = label_pad_token_id
+
+        # Safety: ensure a pad token exists (T5 has one, but keep this robust)
+        tok = self.processor.tokenizer
+        if tok.pad_token_id is None:
+            if tok.eos_token_id is not None:
+                tok.pad_token = tok.eos_token
+            else:
+                # fall back to id 0 if neither is set
+                tok.add_special_tokens({"pad_token": "<pad>"})
 
     def __call__(self, batch):
         images = [b["image"] for b in batch]
         prompts = [b["prompt"] for b in batch]
         targets = [b["answer"] for b in batch]
 
-        # Encode inputs
+        # Inputs for the model (vision + text prompt)
         inputs = self.processor(
             images=images,
             text=prompts,
             padding=True,
+            truncation=True,
             return_tensors="pt",
         )
-        # Encode targets as labels
-        with self.processor.as_target_tokenizer():
-            labels = self.processor.tokenizer(
-                targets,
-                padding=True,
-                return_tensors="pt",
-            )["input_ids"]
 
-        # Replace pad tokens with -100 so they’re ignored in loss
-        labels[labels == self.processor.tokenizer.pad_token_id] = -100
+        # Labels: tokenize with the *tokenizer* directly (no context manager)
+        labels = self.processor.tokenizer(
+            targets,
+            padding=True,
+            truncation=True,
+            return_tensors="pt",
+        ).input_ids
+
+        # Ignore loss on padding
+        pad_id = self.processor.tokenizer.pad_token_id
+        labels[labels == pad_id] = self.label_pad_token_id
+
         inputs["labels"] = labels
         return inputs
+
 
 data_collator = Blip2Collator(processor)
 
