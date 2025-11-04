@@ -55,7 +55,7 @@ processor = Blip2Processor.from_pretrained("Salesforce/blip2-flan-t5-xl")
 # Format data ----------------------->
 
 
-def to_parsable_data(input_path):
+def to_parsable_data(input_path, input_path_2):
     """Convert prompt from "xxx" to [{"role": "user", "content": [{"type": "image"}, {"type": "text", "text": "xxx"}]}]
     and chosen and rejected from "xxx" to [{"role": "assistant", "content": [{"type": "text", "text": "xxx"}]}].
     Images are wrapped into a list.
@@ -68,10 +68,8 @@ def to_parsable_data(input_path):
 
     profiles = {}
 
-    for profile in data:
-        profiles[profile] = {"text": "", "images": [], "image_prompt_list": []}
-
     for profile_id in data:
+        profiles[profile_id] = {"text": "", "images": [], "image_prompt_list": []}
         currProf = profiles[profile_id]
         profile = data[profile_id]
 
@@ -119,9 +117,7 @@ def to_parsable_data(input_path):
         image_folder = image_path + "/" + profile_id
         for i in range(IMAGE_AMOUNT):
             try:
-                currProf["images"].append(
-                    Image.open(image_folder + "/image_" + i + ".jpg").convert("RGB")
-                )
+                currProf["images"].append(Image.open(image_folder + "/image_" + i + ".jpg").convert("RGB"))
                 currProf["image_prompt_list"].append({"type": "image"})
             finally:
                 continue
@@ -129,18 +125,17 @@ def to_parsable_data(input_path):
             {"type": "text", "text": "Her profile: " + currProf["text"]}
         )
 
+    with open(input_path_2) as f:
+        data2 = json.load(f)
+
     output_dict = {}
-    for id in profiles:
-        prompt = [{"role": "user", "content": profiles[id]["image_prompt_list"]}]
-        chosen = [
-            {"role": "assistant", "content": [{"type": "text", "text": "chosen"}]}
-        ]
-        rejected = [
-            {"role": "assistant", "content": [{"type": "text", "text": "rejected"}]}
-        ]
-        output_dict[id] = {
+    for id_1 in profiles:
+        prompt = [{"role": "user", "content": profiles[id_1]["image_prompt_list"]}]
+        chosen = [{"role": "assistant", "content": [{"type": "text", "text": data2[id_1]["chosen"]}]}]
+        rejected = [{"role": "assistant", "content": [{"type": "text", "text": data2[id_1]["rejected"]}]}]
+        output_dict[id_1] = {
             "prompt": prompt,
-            "images": profiles[id]["images"],
+            "images": profiles[id_1]["images"],
             "chosen": chosen,
             "rejected": rejected,
         }
@@ -174,12 +169,7 @@ training_args = TrainingArguments(
 )
 
 
-ddataset = Dataset.from_dict(
-    to_parsable_data(
-        "/cluster/home/kristiac/rizzai/RizzAI/data_collection/profiles/text_data.json",
-        "/cluster/home/kristiac/rizzai/RizzAI/data_collection/supervised",
-    )
-)
+ddataset = Dataset.from_dict(to_parsable_data("/cluster/home/kristiac/rizzai/RizzAI/data_collection/profiles/text_data.json", "/cluster/home/kristiac/rizzai/RizzAI/data_collection/profiles/llm_lines_finetune.json"))
 split_dataset = ddataset.train_test_split(test_size=0.5, seed=42)
 train_dataset, valid_dataset = split_dataset["train"], split_dataset["test"]
 
@@ -195,4 +185,4 @@ trainer.train()
 
 # <--------------------------------
 
-output_data = to_parsable_data("./data_collection/profiles/text_data.json")
+#output_data = to_parsable_data("./data_collection/profiles/text_data.json")
