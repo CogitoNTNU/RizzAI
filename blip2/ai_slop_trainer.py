@@ -153,6 +153,17 @@ class Blip2Collator:
 
 data_collator = Blip2Collator(processor)
 
+class CleanInputsTrainer(Trainer):
+    def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
+        # Strip keys the model doesn't expect
+        if "num_items_in_batch" in inputs:
+            inputs = {k: v for k, v in inputs.items() if k != "num_items_in_batch"}
+        outputs = model(**inputs)
+        loss = outputs["loss"] if isinstance(outputs, dict) else outputs.loss
+        return (loss, outputs) if return_outputs else loss
+
+
+
 # 3) Training args (note: evaluation_strategy, not eval_strategy)
 training_args = TrainingArguments(
     output_dir="./results",
@@ -168,12 +179,13 @@ training_args = TrainingArguments(
     report_to="none",
 )
 
-trainer = Trainer(
+# then use it:
+trainer = CleanInputsTrainer(
     model=model,
     args=training_args,
     train_dataset=train_dataset,
     eval_dataset=eval_dataset,
-    data_collator=data_collator,     # <-- use collator, not tokenizer
+    data_collator=data_collator,
 )
 
 trainer.train()
