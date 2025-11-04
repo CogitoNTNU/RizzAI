@@ -23,4 +23,4 @@ uv sync
 # uv run python -m blip2.test2
 # uv run python -m blip2.test
 # uv run python -m blip2.test_rizz
-uv run python -m blip2.trainer
+uv run python -m blip2.ai_slop_trainer
