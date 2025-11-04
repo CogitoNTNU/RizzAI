@@ -4,11 +4,11 @@
 #SBATCH --mem=80GB # Total memory you need. Most DL jobs should do fine with 64GB.
 #SBATCH --nodes=1 # Number of nodes. Leave this to 1 as long as you're not running multi-node/multi-gpu training
 #SBATCH --cpus-per-task=4 # Number of CPU cores required. Most V100 nodes has 4 CPU cores per GPU, so to maximize usage of the nodes, leave it to 4 (unless you know that your specific node has more than 4 cores/GPU).
-#SBATCH --job-name=training_slopmodel # Set this to whatever you want
-#SBATCH --time=10:00:00 # Maximum running time of your job.
+#SBATCH --job-name=slopmodel # Set this to whatever you want
+#SBATCH --time=30:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:1 # GPU type and number of GPUs.
-#SBATCH --output=job_output/%j_sloptrain.txt
+#SBATCH --output=job_output/%j_sloptrain_working.txt
 #SBATCH --constraint="a100"
 
 # Ensure the job_output directory exists
