@@ -3,6 +3,8 @@ data_collection/profiles/*
 
 # Job output files
 job_output/
+jobs/gpu/output/
+jobs/cpu/output/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
