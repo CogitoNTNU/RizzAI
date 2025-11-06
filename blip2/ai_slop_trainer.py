@@ -179,7 +179,6 @@ training_args = TrainingArguments(
     report_to="none",
     load_best_model_at_end=False,       # since we won't be saving checkpoints
     save_safetensors=True,              # final save uses .safetensors
-    include_num_input_tokens_in_batch=False,
 )
 
 # then use it:
