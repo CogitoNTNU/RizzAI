@@ -6,6 +6,9 @@ job_output/
 jobs/gpu/output/
 jobs/cpu/output/
 
+# Model output files
+results/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
