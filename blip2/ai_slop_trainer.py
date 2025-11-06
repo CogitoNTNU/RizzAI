@@ -172,11 +172,14 @@ training_args = TrainingArguments(
     num_train_epochs=300,
     learning_rate=5e-5,
     eval_strategy="epoch",
-    save_strategy="epoch",
+    save_strategy="no",
     logging_dir="./logs",
     fp16=torch.cuda.is_available(),
     remove_unused_columns=False,     # <-- required for multimodal
     report_to="none",
+    load_best_model_at_end=False,       # since we won't be saving checkpoints
+    save_safetensors=True,              # final save uses .safetensors
+    include_num_input_tokens_in_batch=False,
 )
 
 # then use it:
