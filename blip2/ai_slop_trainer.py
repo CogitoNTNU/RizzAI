@@ -192,3 +192,5 @@ trainer = CleanInputsTrainer(
 )
 
 trainer.train()
+model.save_pretrained("./final", safe_serialization=True)
+processor.save_pretrained("./final")
