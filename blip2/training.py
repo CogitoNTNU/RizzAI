@@ -1,26 +1,34 @@
 import json
 import os
-from PIL import Image
+from pathlib import Path
+
+import torch
 from datasets import Dataset
+from PIL import Image
 from transformers import (
     Blip2ForConditionalGeneration,
     Blip2Processor,
     Trainer,
     TrainingArguments,
 )
-import torch
+
+
+MODEL_NAME = "Salesforce/blip2-flan-t5-xl"
+
+MODEL_PATH = Path("models") / "final"
+
 
 # 1) Load a *pretrained* BLIP-2 model & processor that match
-model_name = "Salesforce/blip2-flan-t5-xl"
-processor = Blip2Processor.from_pretrained(model_name)
-model = Blip2ForConditionalGeneration.from_pretrained(model_name)
+processor = Blip2Processor.from_pretrained(MODEL_NAME)
+model = Blip2ForConditionalGeneration.from_pretrained(MODEL_NAME)
 
 # (Optional) Freeze vision tower if you want
 for p in model.vision_model.parameters():
     p.requires_grad = False
 
+
 def build_profiles(text_json_path, pairs_json_path):
-    """Returns a dict: id -> {'profile_text': str, 'images': [PIL,...], 'chosen': str}"""
+    """Returns a dict: id -> {'profile_text': str, 'images': [PIL,...], 'chosen': str}."""
     with open(text_json_path) as f:
         profiles_raw = json.load(f)
     with open(pairs_json_path) as f:
@@ -77,11 +85,9 @@ def build_profiles(text_json_path, pairs_json_path):
         }
     return profiles
 
+
 def flatten_to_examples(profiles_dict):
-    """
-    Make one example per image:
-      {"image": PIL, "prompt": <string>, "answer": <string>}
-    """
+    """Make one example per image: {"image": PIL, "prompt": <string>, "answer": <string>}."""
     examples = []
     for pid, rec in profiles_dict.items():
         prompt_text = "Her profile: " + rec["profile_text"]
@@ -96,8 +102,8 @@ def flatten_to_examples(profiles_dict):
 
 # Build/flatten
 profiles = build_profiles(
-    "/cluster/home/kristiac/rizzai/RizzAI/data_collection/profiles/text_data.json",
-    "/cluster/home/kristiac/rizzai/RizzAI/data_collection/profiles/llm_lines_finetune.json",
+    "data_collection/profiles/text_data.json",
+    "data_collection/profiles/llm_lines_finetune.json",
 )
 examples = flatten_to_examples(profiles)
 
@@ -191,5 +197,6 @@ trainer = CleanInputsTrainer(
 )
 
 trainer.train()
-model.save_pretrained("./final", safe_serialization=True)
-processor.save_pretrained("./final")
+MODEL_PATH.mkdir(parents=True, exist_ok=True)
+model.save_pretrained(str(MODEL_PATH), safe_serialization=True)
+processor.save_pretrained(str(MODEL_PATH))
