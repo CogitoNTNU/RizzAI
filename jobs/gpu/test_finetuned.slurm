@@ -12,6 +12,8 @@
 #SBATCH --constraint="a100"
 
 
+mkdir -p job_output/test
+
 # Print some info
 echo "Job started on $(hostname) at $(date)"
 
