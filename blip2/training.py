@@ -1,5 +1,4 @@
 import json
-import os
 from pathlib import Path
 
 import torch
@@ -65,17 +64,12 @@ def build_profiles(text_json_path, pairs_json_path):
         profile_text = " ".join(txt).strip()
 
         # Images
-        image_dir = os.path.join(os.path.dirname(text_json_path), "images", pid)
+        image_dir = Path(text_json_path).parent / "images" / pid
         images = []
-        if os.path.isdir(image_dir):
+        if image_dir.is_dir():
             # load every file named image_*.jpg
-            for fname in sorted(os.listdir(image_dir)):
-                if fname.lower().endswith(".jpg") and fname.startswith("image_"):
-                    path = os.path.join(image_dir, fname)
-                    try:
-                        images.append(Image.open(path).convert("RGB"))
-                    except Exception:
-                        pass
+            for filename in image_dir.glob("image_*.jpg"):
+                    images.append(Image.open(filename).convert("RGB"))
 
         profiles[pid] = {
             "profile_text": profile_text,
@@ -89,7 +83,7 @@ def build_profiles(text_json_path, pairs_json_path):
 def flatten_to_examples(profiles_dict):
     """Make one example per image: {"image": PIL, "prompt": <string>, "answer": <string>}."""
     examples = []
-    for pid, rec in profiles_dict.items():
+    for _pid, rec in profiles_dict.items():
         prompt_text = "Her profile: " + rec["profile_text"]
         answer_text = rec["chosen"] or ""  # ensure string
         for img in rec["images"]:
@@ -109,8 +103,8 @@ examples = flatten_to_examples(profiles)
 
 # IMPORTANT: from_list (NOT from_dict)
 dataset = Dataset.from_list(examples)
-split = dataset.train_test_split(test_size=0.5, seed=42)
-train_dataset, eval_dataset = split["train"], split["test"]
+split = dataset.train_test_split(test_size=0.2, seed=42)
+train_dataset, validation_dataset = split["train"], split["test"]
 
 # 2) Custom data collator to produce model-forward inputs
 class Blip2Collator:
@@ -170,21 +164,26 @@ class CleanInputsTrainer(Trainer):
 
 
 
-# 3) Training args (note: evaluation_strategy, not eval_strategy)
+# 3) Training args with checkpointing for top 2 models
 training_args = TrainingArguments(
     output_dir="./results",
-    per_device_train_batch_size=1,   # XL model is big; start small
+    # per_device_train_batch_size=1,   # XL model is big; start small
+    per_device_eval_batch_size=1,    # eval batch size
     gradient_accumulation_steps=8,   # keep effective batch ~8
     num_train_epochs=300,
     learning_rate=5e-5,
-    eval_strategy="epoch",
-    save_strategy="no",
+    eval_strategy="epoch",           # evaluate every epoch
+    save_strategy="epoch",            # save checkpoint every epoch
+    save_total_limit=2,               # keep only top 2 checkpoints
+    load_best_model_at_end=True,     # load best model at the end
+    metric_for_best_model="eval_loss", # use eval loss to determine best model
+    greater_is_better=False,          # lower loss is better
     logging_dir="./logs",
+    logging_strategy="epoch",
     fp16=torch.cuda.is_available(),
     remove_unused_columns=False,     # <-- required for multimodal
     report_to="none",
-    load_best_model_at_end=False,       # since we won't be saving checkpoints
-    save_safetensors=True,              # final save uses .safetensors
+    save_safetensors=True,           # save using .safetensors format
 )
 
 # then use it:
@@ -192,7 +191,7 @@ trainer = CleanInputsTrainer(
     model=model,
     args=training_args,
     train_dataset=train_dataset,
-    eval_dataset=eval_dataset,
+    eval_dataset=validation_dataset,
     data_collator=data_collator,
 )
 
