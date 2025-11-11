@@ -8,19 +8,12 @@
 #SBATCH --time=30:00:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
 #SBATCH --gres=gpu:1 # GPU type and number of GPUs.
-#SBATCH --output=job_output/%j_sloptrain_working.txt
+#SBATCH --output=job_output/train/%j_sloptrain_working.txt
 #SBATCH --constraint="a100"
 
 # Ensure the job_output directory exists
-mkdir -p job_output
+mkdir -p job_output/train/
 
-if [ -z "$CUDA_VISIBLE_DEVICES" ]; then
-  echo "Total of GPUS: None (CPU-only job)"
-else
-  echo "Total of GPUS: $CUDA_VISIBLE_DEVICES"
-fi
+
 uv sync
-# uv run python -m blip2.test2
-# uv run python -m blip2.test
-# uv run python -m blip2.test_rizz
-uv run python -m blip2.ai_slop_trainer
+uv run python -m blip2.training
