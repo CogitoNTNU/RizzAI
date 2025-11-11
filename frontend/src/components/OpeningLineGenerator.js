@@ -27,13 +27,12 @@ function OpeningLineGenerator({ openingLines, onSelectLine }) {
                 <p className="text-lg text-gray-800 leading-relaxed group-hover:text-purple-700 transition-colors">
                   {line.text}
                 </p>
-                <div className="mt-3 flex items-center space-x-4 text-sm text-gray-500">
-                  <span className="flex items-center">
-                    🌡️ Temperature: {line.temperature}
-                  </span>
-                  <span className="flex items-center">
-                    🎯 Max Tokens: {line.max_tokens}
-                  </span>
+                <div className="mt-3 flex flex-wrap gap-2 text-sm text-gray-500">
+                  {Object.entries(line.kwargs).map(([key, value]) => (
+                    <span key={key} className="flex items-center bg-gray-100 px-2 py-1 rounded">
+                      <strong>{key}:</strong>&nbsp;{typeof value === 'boolean' ? (value ? 'true' : 'false') : value}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>

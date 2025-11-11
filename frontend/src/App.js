@@ -9,6 +9,11 @@ function App() {
   const [openingLines, setOpeningLines] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showKisses, setShowKisses] = useState(false);
+  const [configs, setConfigs] = useState([
+    { max_new_tokens: 80, temperature: 0.9, do_sample: true, top_p: 0.9 },
+    { max_new_tokens: 100, temperature: 1.2, do_sample: true, top_p: 0.9 },
+    { max_new_tokens: 120, temperature: 1.5, do_sample: true, top_p: 0.9 },
+  ]);
 
   const handleImageUpload = (uploadedImage) => {
     setImage(uploadedImage);
@@ -27,6 +32,7 @@ function App() {
       const formData = new FormData();
       formData.append('image', image);
       formData.append('description', description);
+      formData.append('configs', JSON.stringify(configs));
 
       const response = await fetch('http://localhost:8000/generate', {
         method: 'POST',
@@ -50,6 +56,27 @@ function App() {
   const handleSelectLine = () => {
     setShowKisses(true);
     setTimeout(() => setShowKisses(false), 3000);
+  };
+
+  const addConfig = () => {
+    setConfigs([...configs, { max_new_tokens: 100, temperature: 1.0, do_sample: true, top_p: 0.9 }]);
+  };
+
+  const removeConfig = (index) => {
+    setConfigs(configs.filter((_, i) => i !== index));
+  };
+
+  const updateConfig = (index, key, value) => {
+    const newConfigs = [...configs];
+    // Convert to appropriate type
+    if (key === 'do_sample') {
+      newConfigs[index][key] = value === 'true' || value === true;
+    } else if (key === 'max_new_tokens') {
+      newConfigs[index][key] = parseInt(value) || 0;
+    } else {
+      newConfigs[index][key] = parseFloat(value) || 0;
+    }
+    setConfigs(newConfigs);
   };
 
   return (
@@ -84,6 +111,95 @@ function App() {
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none transition-colors resize-none"
                 rows="4"
               />
+            </div>
+
+            <div className="mt-6">
+              <div className="flex justify-between items-center mb-3">
+                <label className="block text-lg font-semibold text-gray-700">
+                  Generation Configurations
+                </label>
+                <button
+                  onClick={addConfig}
+                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-semibold"
+                >
+                  ➕ Add Config
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">
+                Configure parameters for model.generate(). Each config will generate one opening line.
+              </p>
+              
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {configs.map((config, index) => (
+                  <div key={index} className="p-4 border-2 border-gray-300 rounded-lg bg-gray-50">
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="font-semibold text-gray-700">Config {index + 1}</h3>
+                      {configs.length > 1 && (
+                        <button
+                          onClick={() => removeConfig(index)}
+                          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Max New Tokens
+                        </label>
+                        <input
+                          type="number"
+                          value={config.max_new_tokens}
+                          onChange={(e) => updateConfig(index, 'max_new_tokens', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded focus:border-purple-500 focus:outline-none"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Temperature
+                        </label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={config.temperature}
+                          onChange={(e) => updateConfig(index, 'temperature', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded focus:border-purple-500 focus:outline-none"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Top P
+                        </label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={config.top_p}
+                          onChange={(e) => updateConfig(index, 'top_p', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded focus:border-purple-500 focus:outline-none"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Do Sample
+                        </label>
+                        <select
+                          value={config.do_sample ? 'true' : 'false'}
+                          onChange={(e) => updateConfig(index, 'do_sample', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded focus:border-purple-500 focus:outline-none"
+                        >
+                          <option value="true">True</option>
+                          <option value="false">False</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <button
