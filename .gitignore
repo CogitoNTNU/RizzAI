@@ -12,6 +12,9 @@ jobs/cpu/output/
 results/
 models/
 
+# Fine-tuned models
+models/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
