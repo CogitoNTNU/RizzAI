@@ -7,10 +7,10 @@
 #SBATCH --job-name=hourglass_prior_freq_50 # Set this to whatever you want
 #SBATCH --time=00:20:00 # Maximum running time of your job.
 #SBATCH --export=ALL # Export all environment variables.
-#SBATCH --output=job_output/%j_cpu_simple_test.out
+#SBATCH --output=job_output/cpu_simple_test/%j_cpu_simple_test.out
 
 # Ensure the job_output directory exists
-mkdir -p job_output
+mkdir -p job_output/cpu_simple_test
 
 echo "We are running from this directory: $SLURM_SUBMIT_DIR"
 echo "The name of the job is: $SLURM_JOB_NAME"
