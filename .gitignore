@@ -1,10 +1,19 @@
 # Data files and directories
-data_collection/profiles/*
+data_collection/profiles/
+data_collection/profiles2/
+data_collection/pickup_lines/
 
 # Job output files
 job_output/
 jobs/gpu/output/
 jobs/cpu/output/
+
+# Model output files
+results/
+models/
+
+# Fine-tuned models
+models/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

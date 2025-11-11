@@ -1,4 +1,0 @@
-{
-  "num_query_tokens": 32,
-  "processor_class": "Blip2Processor"
-}
