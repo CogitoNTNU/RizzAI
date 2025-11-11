@@ -22,4 +22,5 @@ git pull
 # Run training
 uv run python -m blip2.test_finetuned
 
+echo "-------------------------------------"
 echo "Job finished at $(date)"
