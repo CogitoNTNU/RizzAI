@@ -1,4 +1,6 @@
 # RizzAI
+This project was not compleated to its fullest form, feel free to use and finish as you wish.
+
 
 ## Setup
 1. Use UV to install dependencies: `uv sync`
